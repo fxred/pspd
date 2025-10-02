@@ -27,7 +27,7 @@ pub struct MovePayload<'a> { player_id: PlayerId, direction: &'a str }
 // CONSTANTES E CONFIGURAÇÃO
 // ===================================================================================
 
-const API_BASE_URL: &str = "http://localhost:3000";
+const API_BASE_URL: &str = "http://127.0.0.1:3000";
 
 // ===================================================================================
 // LÓGICA PRINCIPAL DA APLICAÇÃO WASM

@@ -74,7 +74,7 @@ async fn main() {
         .with_state(shared_state)
         .layer(cors);
 
-    let addr: SocketAddr = "[::]:3000".parse().unwrap();
+    let addr: SocketAddr = "127.0.0.1:3000".parse().unwrap();
     println!("Servidor rodando em http://{}", addr);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();
