@@ -60,7 +60,7 @@ pub struct MovePayload<'a> {
 // CONSTANTES E CONFIGURAÇÃO
 // ===================================================================================
 
-const API_BASE_URL: &str = "http://srv996420.hstgr.cloud:3000";
+const API_BASE_URL: &str = "http://localhost:3000";
 
 // ===================================================================================
 // FUNÇÃO PRINCIPAL
