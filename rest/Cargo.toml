@@ -1,0 +1,7 @@
+[workspace]
+members = [
+    "game_kernel",
+    "servico_a",
+    "servico_b",
+    "wasm_game_client"
+]

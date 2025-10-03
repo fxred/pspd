@@ -212,7 +212,7 @@ impl Widget for GameWidget<'_> {
                         let screen_x = area.x + (x * cell_width) as u16 + col as u16;
                         let screen_y = area.y + (y * cell_height) as u16 + row as u16;
                         if screen_x < area.right() && screen_y < area.bottom() {
-                            buf.get_mut(screen_x, screen_y).set_symbol(symbol).set_fg(color);
+                            buf[(screen_x, screen_y)].set_symbol(symbol).set_fg(color);
                         }
                     }
                 }
@@ -224,7 +224,7 @@ impl Widget for GameWidget<'_> {
             let screen_x = area.x + (player.x * cell_width) as u16 + (cell_width / 2) as u16;
             let screen_y = area.y + (player.y * cell_height) as u16 + (cell_height / 2) as u16;
             if screen_x < area.right() && screen_y < area.bottom() {
-                buf.get_mut(screen_x, screen_y).set_symbol(symbol).set_fg(Color::White).set_bg(Color::Black);
+                buf[(screen_x, screen_y)].set_symbol(symbol).set_fg(Color::White).set_bg(Color::Black);
             }
         }
     }
