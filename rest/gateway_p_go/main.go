@@ -64,21 +64,12 @@ func main() {
 	router.POST("/game/join", func(c *gin.Context) {
 		proxyRequest(c, serviceB_URL)
 	})
-	router.OPTIONS("/game/join", func(c *gin.Context) {
-		proxyRequest(c, serviceB_URL)
-	})
 
 	router.GET("/game/state", func(c *gin.Context) {
 		proxyRequest(c, serviceB_URL)
 	})
-	router.OPTIONS("/game/state", func(c *gin.Context) {
-		proxyRequest(c, serviceB_URL)
-	})
 
 	router.POST("/game/move", func(c *gin.Context) {
-		proxyRequest(c, serviceA_URL)
-	})
-	router.OPTIONS("/game/move", func(c *gin.Context) {
 		proxyRequest(c, serviceA_URL)
 	})
 
