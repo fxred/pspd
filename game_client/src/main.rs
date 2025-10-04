@@ -60,7 +60,7 @@ pub struct MovePayload<'a> {
 // CONSTANTES E CONFIGURAÇÃO
 // ===================================================================================
 
-const API_BASE_URL: &str = "http://127.0.0.1:3000";
+const API_BASE_URL: &str = "http://127.0.0.1:8000";
 
 // ===================================================================================
 // FUNÇÃO PRINCIPAL
@@ -92,7 +92,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut game_state: Option<GameState> = None;
 
     loop {
-        if let Ok(resp) = client.get(format!("{}/game", API_BASE_URL)).send().await {
+        if let Ok(resp) = client.get(format!("{}/game/state", API_BASE_URL)).send().await {
             if let Ok(state) = resp.json::<GameState>().await {
                 game_state = Some(state);
             }

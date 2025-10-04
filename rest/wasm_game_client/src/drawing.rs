@@ -78,10 +78,25 @@ fn draw_scores(ctx: &CanvasRenderingContext2d, state: &GameState) {
     ctx.set_font("16px Arial");
     ctx.set_text_align("left");
 
+    let mut player_scores: Vec<_> = state
+        .players
+        .values()
+        .map(|player| {
+            let score = state
+                .grid
+                .iter()
+                .flatten()
+                .filter(|&&cell| cell == CellState::Owned(player.id))
+                .count();
+            (player, score)
+        })
+        .collect();
+
+    player_scores.sort_by(|a, b| b.1.cmp(&a.1));
+
     let mut y_offset = 20.0;
-    for (id, player) in &state.players {
-        let score = state.grid.iter().flatten().filter(|&&cell| cell == CellState::Owned(*id)).count();
-        let score_text = format!("Jogador {}: {} pontos", id, score);
+    for (player, score) in player_scores {
+        let score_text = format!("Jogador {}: {} pontos", player.id, score);
 
         ctx.set_fill_style_str(&player.color);
         ctx.fill_rect(10.0, y_offset - 12.0, 12.0, 12.0);

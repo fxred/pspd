@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -20,7 +21,9 @@ func proxyRequest(c *gin.Context, targetURL string) {
 		return
 	}
 
-	proxyReq, err := http.NewRequest(c.Request.Method, targetURL, bytes.NewReader(body))
+	fullTargetURL := targetURL + c.Request.URL.RequestURI()
+
+	proxyReq, err := http.NewRequest(c.Request.Method, fullTargetURL, bytes.NewReader(body))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create proxy request"})
 		return
@@ -43,6 +46,9 @@ func proxyRequest(c *gin.Context, targetURL string) {
 	}
 
 	for key, values := range resp.Header {
+		if key == "Access-Control-Allow-Origin" || key == "Access-Control-Allow-Methods" {
+			continue
+		}
 		for _, value := range values {
 			c.Writer.Header().Add(key, value)
 		}
@@ -53,17 +59,27 @@ func proxyRequest(c *gin.Context, targetURL string) {
 
 func main() {
 	router := gin.Default()
+	router.Use(cors.Default())
 
 	router.POST("/game/join", func(c *gin.Context) {
-		proxyRequest(c, serviceB_URL+"/game/join")
+		proxyRequest(c, serviceB_URL)
+	})
+	router.OPTIONS("/game/join", func(c *gin.Context) {
+		proxyRequest(c, serviceB_URL)
 	})
 
 	router.GET("/game/state", func(c *gin.Context) {
-		proxyRequest(c, serviceB_URL+"/game/state")
+		proxyRequest(c, serviceB_URL)
+	})
+	router.OPTIONS("/game/state", func(c *gin.Context) {
+		proxyRequest(c, serviceB_URL)
 	})
 
 	router.POST("/game/move", func(c *gin.Context) {
-		proxyRequest(c, serviceA_URL+"/game/move")
+		proxyRequest(c, serviceA_URL)
+	})
+	router.OPTIONS("/game/move", func(c *gin.Context) {
+		proxyRequest(c, serviceA_URL)
 	})
 
 	println("Gateway P (Go) rodando em http://127.0.0.1:8000")

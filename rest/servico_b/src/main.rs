@@ -8,16 +8,10 @@ use axum::{
 use std::collections::HashMap;
 use std::net::SocketAddr;
 use std::sync::{Arc, Mutex};
-use tower_http::cors::{Any, CorsLayer};
 use game_kernel::*;
 
 #[tokio::main]
 async fn main() {
-	let cors = CorsLayer::new()
-	        .allow_origin(Any)
-	        .allow_methods(Any)
-	        .allow_headers(Any);
-
     let initial_state = create_initial_state(15, 15);
     let shared_state = Arc::new(Mutex::new(initial_state));
 
@@ -25,8 +19,7 @@ async fn main() {
         .route("/game/join", post(join_game))
         .route("/game/state", get(get_game_state))
         .route("/game/state/update", post(update_game_state))
-        .with_state(shared_state)
-        .layer(cors);
+        .with_state(shared_state);
 
     let addr: SocketAddr = "127.0.0.1:3001".parse().unwrap();
     println!("Serviço B (Estado) rodando em http://{}", addr);

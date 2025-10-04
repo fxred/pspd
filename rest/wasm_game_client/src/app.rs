@@ -84,7 +84,7 @@ pub async fn run_app() -> Result<(), JsValue> {
             }
         });
     });
-    window().set_interval_with_callback_and_timeout_and_arguments_0(game_loop_callback.as_ref().unchecked_ref(), 150)?;
+    window().set_interval_with_callback_and_timeout_and_arguments_0(game_loop_callback.as_ref().unchecked_ref(), 35)?;
     game_loop_callback.forget();
 
     Ok(())
