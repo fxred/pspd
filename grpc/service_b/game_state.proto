@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+package gamestate;
+
+option go_package = "github.com/yourusername/game-state-service/proto";
+
+// Serviço principal do estado do jogo
+service GameStateService {
+  rpc JoinGame(JoinGameRequest) returns (JoinGameResponse);
+  rpc GetGameState(GetGameStateRequest) returns (GameStateResponse);
+  rpc UpdateGameState(UpdateGameStateRequest) returns (UpdateGameStateResponse);
+}
+
+// Enums
+enum GameStatus {
+  WAITING_FOR_PLAYERS = 0;
+  IN_PROGRESS = 1;
+  FINISHED = 2;
+}
+
+enum CellState {
+  NEUTRAL = 0;
+  OWNED = 1;
+}
+
+// Mensagens
+message Player {
+  int32 id = 1;
+  int32 x = 2;
+  int32 y = 3;
+  string color = 4;
+}
+
+message Cell {
+  CellState state = 1;
+  int32 owner_id = 2; // 0 se neutro
+}
+
+message Grid {
+  repeated GridRow rows = 1;
+}
+
+message GridRow {
+  repeated Cell cells = 1;
+}
+
+message GameState {
+  GameStatus status = 1;
+  int32 width = 2;
+  int32 height = 3;
+  Grid grid = 4;
+  map<int32, Player> players = 5;
+}
+
+// Request/Response messages
+message JoinGameRequest {}
+
+message JoinGameResponse {
+  Player player = 1;
+  string error = 2;
+}
+
+message GetGameStateRequest {}
+
+message GameStateResponse {
+  GameState state = 1;
+}
+
+message UpdateGameStateRequest {
+  GameState state = 1;
+}
+
+message UpdateGameStateResponse {
+  bool success = 1;
+}
