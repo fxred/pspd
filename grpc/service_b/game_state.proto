@@ -2,9 +2,6 @@ syntax = "proto3";
 
 package gamestate;
 
-option go_package = "github.com/yourusername/game-state-service/proto";
-
-// Serviço principal do estado do jogo
 service GameStateService {
   rpc JoinGame(JoinGameRequest) returns (JoinGameResponse);
   rpc GetGameState(GetGameStateRequest) returns (GameStateResponse);
