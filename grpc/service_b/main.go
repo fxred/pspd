@@ -142,7 +142,7 @@ func main() {
 	
 	reflection.Register(grpcServer)
 
-	log.Printf("Serviço de Estado gRPC rodando na porta %d", port)
+	log.Printf("Serviço B de Estado gRPC rodando na porta %d", port)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}

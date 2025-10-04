@@ -27,8 +27,6 @@ const (
 // GameStateServiceClient is the client API for GameStateService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-//
-// Serviço principal do estado do jogo
 type GameStateServiceClient interface {
 	JoinGame(ctx context.Context, in *JoinGameRequest, opts ...grpc.CallOption) (*JoinGameResponse, error)
 	GetGameState(ctx context.Context, in *GetGameStateRequest, opts ...grpc.CallOption) (*GameStateResponse, error)
@@ -76,8 +74,6 @@ func (c *gameStateServiceClient) UpdateGameState(ctx context.Context, in *Update
 // GameStateServiceServer is the server API for GameStateService service.
 // All implementations must embed UnimplementedGameStateServiceServer
 // for forward compatibility.
-//
-// Serviço principal do estado do jogo
 type GameStateServiceServer interface {
 	JoinGame(context.Context, *JoinGameRequest) (*JoinGameResponse, error)
 	GetGameState(context.Context, *GetGameStateRequest) (*GameStateResponse, error)

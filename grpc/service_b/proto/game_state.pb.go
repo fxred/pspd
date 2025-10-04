@@ -707,7 +707,7 @@ const file_game_state_proto_rawDesc = "" +
 	"\x10GameStateService\x12C\n" +
 	"\bJoinGame\x12\x1a.gamestate.JoinGameRequest\x1a\x1b.gamestate.JoinGameResponse\x12L\n" +
 	"\fGetGameState\x12\x1e.gamestate.GetGameStateRequest\x1a\x1c.gamestate.GameStateResponse\x12X\n" +
-	"\x0fUpdateGameState\x12!.gamestate.UpdateGameStateRequest\x1a\".gamestate.UpdateGameStateResponseB2Z0github.com/yourusername/game-state-service/protob\x06proto3"
+	"\x0fUpdateGameState\x12!.gamestate.UpdateGameStateRequest\x1a\".gamestate.UpdateGameStateResponseB\tZ\a./protob\x06proto3"
 
 var (
 	file_game_state_proto_rawDescOnce sync.Once

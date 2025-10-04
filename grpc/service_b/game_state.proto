@@ -2,6 +2,8 @@ syntax = "proto3";
 
 package gamestate;
 
+option go_package = "./proto";
+
 service GameStateService {
   rpc JoinGame(JoinGameRequest) returns (JoinGameResponse);
   rpc GetGameState(GetGameStateRequest) returns (GameStateResponse);
