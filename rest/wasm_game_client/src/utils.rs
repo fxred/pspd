@@ -12,6 +12,12 @@ pub fn get_canvas_context() -> CanvasRenderingContext2d {
     canvas.get_context("2d").unwrap().unwrap().dyn_into::<CanvasRenderingContext2d>().unwrap()
 }
 
+pub fn set_timeout(f: &Closure<dyn FnMut()>, timeout_ms: i32) {
+    window()
+        .set_timeout_with_callback_and_timeout_and_arguments_0(f.as_ref().unchecked_ref(), timeout_ms)
+        .expect("should register `setTimeout` OK");
+}
+
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = console)]

@@ -32,8 +32,18 @@ pub async fn run_app() -> Result<(), JsValue> {
     }
     
     let my_player_clone_for_move = my_player.clone();
+    let game_state_clone_for_move = game_state.clone();
     let client_clone_for_move = client.clone();
     let keydown_callback = Closure::<dyn FnMut(_)>::new(move |event: KeyboardEvent| {
+
+        if let Some(state) = game_state_clone_for_move.borrow().as_ref() {
+            if state.status != GameStatus::InProgress {
+                return;
+            }
+        } else {
+            return;
+        }
+
         let mut direction = None;
         match event.key().as_str() {
             "w" | "ArrowUp" => direction = Some("UP"),
@@ -73,19 +83,47 @@ pub async fn run_app() -> Result<(), JsValue> {
     request_animation_frame(g.borrow().as_ref().unwrap());
     
     let game_state_clone_for_poll = game_state;
-    let game_loop_callback = Closure::<dyn FnMut()>::new(move || {
+    let poll_callback = Rc::new(RefCell::new(None));
+    let p = poll_callback.clone();
+
+    *p.borrow_mut() = Some(Closure::<dyn FnMut()>::new(move || {
         let gs_clone = game_state_clone_for_poll.clone();
         let client_clone_inner = client.clone();
+        let poll_callback_clone = poll_callback.clone();
+
         spawn_local(async move {
+            let mut next_delay_ms = 1000;
+
             if let Ok(resp) = client_clone_inner.get(format!("{}/game/state", API_BASE_URL)).send().await {
                 if let Ok(state) = resp.json::<GameState>().await {
+                    
+                    match state.status {
+                        GameStatus::WaitingForPlayers => {
+                            log("Aguardando mais jogadores para começar...");
+                            next_delay_ms = 2000;
+                        },
+                        GameStatus::InProgress => {
+                            next_delay_ms = 35;
+                        },
+                        GameStatus::Finished => {
+                            log("Jogo encerrado. Parando requisições.");
+                            *gs_clone.borrow_mut() = Some(state);
+                            return;
+                        }
+                    }
                     *gs_clone.borrow_mut() = Some(state);
                 }
             }
+
+            if let Some(next_poll) = poll_callback_clone.borrow().as_ref() {
+                set_timeout(next_poll, next_delay_ms);
+            }
         });
-    });
-    window().set_interval_with_callback_and_timeout_and_arguments_0(game_loop_callback.as_ref().unchecked_ref(), 35)?;
-    game_loop_callback.forget();
+    }));
+
+    if let Some(initial_poll) = p.borrow().as_ref() {
+        set_timeout(initial_poll, 0);
+    }
 
     Ok(())
 }
