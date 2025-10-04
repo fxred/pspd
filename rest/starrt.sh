@@ -16,7 +16,7 @@ build_step() {
     local name="$1"
     shift
     echo -n -e " 📦 $name..."
-    "$@" &> "$LOG_DIR/build.log"
+    "$@" >> "$LOG_DIR/build.log"
     if [ $? -ne 0 ]; then
         echo -e " ${RED}❌ ERRO${NC}"
         echo -e "${YELLOW}      A etapa '$name' falhou. Verifique o log em '$LOG_DIR/build.log'.${NC}"
@@ -35,9 +35,10 @@ cleanup() {
 # --- Script Principal ---
 
 # 1. Preparação
-mkdir -p "$LOG_DIR"
-rm -f "$LOG_DIR"/*.log "$LOG_DIR"/*.err "$LOG_DIR"/build.log
 trap cleanup INT TERM
+mkdir -p "$LOG_DIR"
+rm -f "$LOG_DIR"/*.log "$LOG_DIR"/*.err 
+> "$LOG_DIR"/build.log
 
 # 2. Compilação
 echo "--------------------------------------------------"
@@ -48,6 +49,9 @@ build_step "Executando wasm-bindgen" wasm-bindgen --out-dir "$BASE_DIR/wasm_game
 build_step "Construindo Serviço A" cargo build --release --package servico_a
 build_step "Construindo Serviço B" cargo build --release --package servico_b
 
+(cd "$BASE_DIR/gateway_p_go" && build_step "Construindo Gateway P (GO)" go build -o "$TARGET_DIR/gateway_go" .)
+
+
 # 3. Inicialização
 echo -e "\n${YELLOW}🚀 Etapa 2: Iniciando todos os serviços...${NC}"
 
@@ -57,7 +61,7 @@ PID_A=$!
 "$TARGET_DIR/servico_b" > "$LOG_DIR/servico_b.log" 2> "$LOG_DIR/servico_b.err" &
 PID_B=$!
 
-(cd "$BASE_DIR/gateway_p_go" && go run main.go) > "$LOG_DIR/gateway_go.log" 2> "$LOG_DIR/gateway_go.err" &
+(cd "$BASE_DIR/gateway_p_go" && "$TARGET_DIR/gateway_go") > "$LOG_DIR/gateway_go.log" 2> "$LOG_DIR/gateway_go.err" &
 PID_GATEWAY=$!
 
 (cd "$BASE_DIR/wasm_game_client/www" && python3 -m http.server 8080) > "$LOG_DIR/client_wasm.log" 2> "$LOG_DIR/client_wasm.err" &

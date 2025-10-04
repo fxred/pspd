@@ -64,12 +64,15 @@ Invoke-BuildStep "Executando wasm-bindgen" "wasm-bindgen" @{ ArgumentList = @("-
 Invoke-BuildStep "Construindo Serviço A" "cargo" @{ ArgumentList = @("build", "--release", "--package", "servico_a") }
 Invoke-BuildStep "Construindo Serviço B" "cargo" @{ ArgumentList = @("build", "--release", "--package", "servico_b") }
 
+Push-Location "$BASE_DIR\gateway_p_go"
+Invoke-BuildStep "Construindo Gateway P (GO)" "go" @{ ArgumentList = @("build", "-o", "$TargetDir\gateway_go.exe", ".") }
+Pop-Location
 
 # 3. Inicialização
 Write-Host "`n🚀 Etapa 2: Iniciando todos os serviços..." -ForegroundColor Yellow
 $PID_A = Start-Service "servico_a" "$TargetDir\servico_a.exe" @() "$BASE_DIR"
 $PID_B = Start-Service "servico_b" "$TargetDir\servico_b.exe" @() "$BASE_DIR"
-$PID_GATEWAY = Start-Service "gateway_go" "go" @("run", "main.go") "$BASE_DIR\gateway_p_go"
+$PID_GATEWAY = Start-Service "gateway_go" "$TargetDir\gateway_go.exe" @() "$BASE_DIR"
 $PID_WASM = Start-Service "client_wasm" "python3" @("-m", "http.server", "8080") "$BASE_DIR\wasm_game_client\www"
 
 Start-Sleep -Seconds 2
