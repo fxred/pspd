@@ -12,5 +12,5 @@ Passos:
 3. Executar o script starrt.sh (linux) ou starrt.ps1 (windows)
     `./starrt.sh` ou `./starrt.ps1`
 
-OBS: Alguns usuários podem precisar instalar o Python3 também.
+OBS: Alguns usuários podem precisar instalar o Python3 também.  
 OBS2: Na pasta `game_client` é possível jogar pelo terminal.
