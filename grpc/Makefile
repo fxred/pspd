@@ -98,3 +98,7 @@ make build-client:
 	@rm -rf target && rm -rf wasm_game_client/www/pkg
 	@cargo build --target wasm32-unknown-unknown --release --package wasm_game_client 
 	@wasm-bindgen --out-dir wasm_game_client/www/pkg --target web target/wasm32-unknown-unknown/release/wasm_game_client.wasm
+
+make run-client:
+	@cd wasm_game_client/www
+	@python3 -m http.server 8080
