@@ -45,11 +45,12 @@ run-ruby:
 	cd gateway_p && ruby gateway_p_ruby.rb
 
 run-all:
-	@cd service_a && go run main.go > /tmp/service_a.log 2>&1 & echo $$! > /tmp/service_a.pid
+	@mkdir -p logs
+	@cd service_a && go run main.go > ./logs/service_a.log 2>&1 & echo $$! > ./logs/service_a.pid
 	@sleep 2
-	@cd service_b && go run main.go > /tmp/service_b.log 2>&1 & echo $$! > /tmp/service_b.pid
+	@cd service_b && go run main.go > ./logs/service_b.log 2>&1 & echo $$! > ./logs/service_b.pid
 	@sleep 2
-	@cd gateway_p && ruby gateway_p_ruby.rb > /tmp/gateway_p.log 2>&1 & echo $$! > /tmp/gateway_p.pid
+	@cd gateway_p && ruby gateway_p_ruby.rb > ./logs/gateway_p.log 2>&1 & echo $$! > ./logs/gateway_p.pid
 	@echo "✅ Todos os servidores subiram"
 	@echo ""
 	@echo "Service A (Move):  http://localhost:50051 (gRPC)"

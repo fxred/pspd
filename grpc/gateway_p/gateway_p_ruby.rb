@@ -23,14 +23,23 @@ $game_move_stub = Gamemovement::GameMoveService::Stub.new(
 )
 
 class GameHTTPBridge < Sinatra::Base
-  set :port, 8080
+  include Swagger::Blocks
+
+  use Rack::Cors do
+    allow do
+      origins '*'
+      resource '*', headers: :any, methods: [:get, :post, :options]
+    end
+  end
+
+  set :port, 8082
   set :bind, '0.0.0.0'
 
   before do
     content_type 'application/json'
   end
 
-  post '/join_game' do
+  post 'game/join' do
     resp = $game_state_stub.join_game(Gamestate::JoinGameRequest.new)
 
     game_state_resp = $game_state_stub.get_game_state(Gamestate::GetGameStateRequest.new)
@@ -52,7 +61,7 @@ class GameHTTPBridge < Sinatra::Base
     { error: e.message }.to_json
   end
 
-  get '/game_state' do
+  get 'game/state' do
     resp = $game_state_stub.get_game_state(Gamestate::GetGameStateRequest.new)
     { state: resp.state.to_h }.to_json
   rescue => e
@@ -60,7 +69,7 @@ class GameHTTPBridge < Sinatra::Base
     { error: e.message }.to_json
   end
 
-  post '/update_state' do
+  post 'game/update_state' do
     body = JSON.parse(request.body.read)
     gs = Gamestate::GameState.decode_json(body['state'].to_json)
 
@@ -73,7 +82,7 @@ class GameHTTPBridge < Sinatra::Base
     { error: e.message }.to_json
   end
 
-  post '/create_game' do
+  post 'game/create' do
     body = JSON.parse(request.body.read) rescue {}
     width  = body['width']  || 5
     height = body['height'] || 5
@@ -99,7 +108,7 @@ class GameHTTPBridge < Sinatra::Base
     { error: e.message }.to_json
   end
 
-  post '/validate_move' do
+  post 'game/validate_move' do
     body = JSON.parse(request.body.read)
     req = Gamemovement::ValidateMoveRequest.decode_json(body.to_json)
     resp = $game_move_stub.validate_move(req)
@@ -109,7 +118,7 @@ class GameHTTPBridge < Sinatra::Base
     { error: e.message }.to_json
   end
 
-  post '/execute_move' do
+  post 'game/execute_move' do
     body = JSON.parse(request.body.read)
     req = Gamemovement::ExecuteMoveRequest.decode_json(body.to_json)
     resp = $game_move_stub.execute_move(req)
@@ -123,7 +132,7 @@ class GameHTTPBridge < Sinatra::Base
     { error: e.message }.to_json
   end
 
-  post '/valid_moves' do
+  post 'game/valid_moves' do
     body = JSON.parse(request.body.read)
     req = Gamemovement::GetValidMovesRequest.decode_json(body.to_json)
     resp = $game_move_stub.get_valid_moves(req)
@@ -139,13 +148,13 @@ class GameHTTPBridge < Sinatra::Base
       description: 'Ponte para serviço REST HTTP do Jogo para gRPC GameMoveService & GameStateService',
       rule: 'O jogo só começa quando 2 ou mais jogadores se juntam',
       endpoints: [
-        'POST /create_game',
-        'POST /join_game',
-        'GET  /game_state',
-        'POST /update_state',
-        'POST /validate_move',
-        'POST /execute_move',
-        'POST /valid_moves'
+        'POST game/create',
+        'POST game/join',
+        'GET  game/state',
+        'POST game/update_state',
+        'POST game/validate_move',
+        'POST game/execute_move',
+        'POST game/valid_moves'
       ]
     }.to_json
   end
