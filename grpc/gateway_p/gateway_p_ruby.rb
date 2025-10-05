@@ -1,13 +1,21 @@
 require 'sinatra'
 require 'json'
 require 'grpc'
+require 'rack/cors'
 
-$LOAD_PATH.unshift(File.expand_path('lib', __dir__))
+$LOAD_PATH.unshift(File.expand_path('./lib', __dir__))
 
 require 'service_b/game_state_pb'
 require 'service_b/game_state_services_pb'
 require 'service_a/game_movement_pb'
 require 'service_a/game_movement_services_pb'
+
+use Rack::Cors do
+  allow do
+    origins '*'
+    resource '*', headers: :any, methods: [:get, :post, :options]
+  end
+end
 
 
 GAMESTATE_GRPC_ADDRESS = 'localhost:50051'
@@ -164,7 +172,7 @@ if __FILE__ == $0
   puts "Gateway HTTP do Jogo está iniciando..."
   puts "Conectando ao Serviço A (Movimento):  #{GAMEMOVE_GRPC_ADDRESS}"
   puts "Conectando ao Serviço B (Estado): #{GAMESTATE_GRPC_ADDRESS}"
-  puts "API HTTP disponível em: http://localhost:8080"
+  puts "API HTTP disponível em: http://localhost:8000"
   puts ""
   GameHTTPBridge.run!
 end

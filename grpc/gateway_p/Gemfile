@@ -1,0 +1,12 @@
+source 'https://rubygems.org'
+
+gem 'grpc'
+gem 'grpc-tools'
+gem 'google-protobuf'
+gem 'sinatra'
+gem 'json'
+gem 'rackup'
+gem 'puma'
+gem 'webrick'
+gem 'rack-cors'
+gem 'swagger-blocks'
