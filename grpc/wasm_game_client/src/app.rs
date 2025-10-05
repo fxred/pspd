@@ -1,23 +1,11 @@
 use super::drawing::draw_game;
 use super::utils::*;
 use game_kernel::*;
-use serde::Deserialize; // <-- Adicionado para deserializar as respostas JSON
 use std::cell::RefCell;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::KeyboardEvent;
-
-// Structs para corresponder à estrutura do JSON retornado pela API
-#[derive(Deserialize)]
-struct JoinResponse {
-    player: Player,
-}
-
-#[derive(Deserialize)]
-struct StateResponse {
-    state: GameState,
-}
 
 const API_BASE_URL: &str = "http://127.0.0.1:8082";
 
@@ -28,76 +16,124 @@ pub async fn run_app() -> Result<(), JsValue> {
     let client = reqwest::Client::new();
     log("Tentando entrar no jogo em /game/join...");
     
-    let resp = client.post(format!("{}/game/join", API_BASE_URL)).send().await
-        .map_err(|e| JsValue::from_str(&format!("Erro de rede ao tentar /join: {}", e)))?;
+    let resp = client
+        .post(format!("{}/game/join", API_BASE_URL))
+        .send()
+        .await
+        .map_err(|e| JsValue::from_str(&format!("Erro de rede: {}", e)))?;
     
     if resp.status().is_success() {
         let join_response = resp.json::<JoinResponse>().await
-            .map_err(|e| JsValue::from_str(&format!("Erro ao decodificar JSON da resposta de join: {}", e)))?;
-        log(&format!("Entrou com sucesso como Jogador {}", join_response.player.id));
+            .map_err(|e| JsValue::from_str(&format!("Erro ao decodificar JSON: {}", e)))?;
+        
+        if !join_response.error.is_empty() {
+            return Err(JsValue::from_str(&format!("Erro: {}", join_response.error)));
+        }
+        
+        log(&format!("Entrou como Jogador {}", join_response.player.id));
         *my_player.borrow_mut() = Some(join_response.player);
     } else {
         let err_text = resp.text().await
-            .map_err(|e| JsValue::from_str(&format!("Erro ao ler corpo da resposta de erro: {}", e)))?;
-        return Err(JsValue::from_str(&format!("Falha ao entrar no jogo: {}", err_text)));
+            .map_err(|e| JsValue::from_str(&format!("Erro ao ler resposta: {}", e)))?;
+        return Err(JsValue::from_str(&format!("Falha ao entrar: {}", err_text)));
     }
     
-    let my_player_clone_for_move = my_player.clone();
-    let client_clone_for_move = client.clone();
+    let my_player_clone = my_player.clone();
+    let client_clone = client.clone();
     let keydown_callback = Closure::<dyn FnMut(_)>::new(move |event: KeyboardEvent| {
-        let mut direction = None;
-        match event.key().as_str() {
-            "w" | "ArrowUp" => direction = Some("UP"),
-            "s" | "ArrowDown" => direction = Some("DOWN"),
-            "a" | "ArrowLeft" => direction = Some("LEFT"),
-            "d" | "ArrowRight" => direction = Some("RIGHT"),
-            _ => {}
-        }
+        let direction = match event.key().as_str() {
+            "w" | "ArrowUp" => Some("UP"),
+            "s" | "ArrowDown" => Some("DOWN"),
+            "a" | "ArrowLeft" => Some("LEFT"),
+            "d" | "ArrowRight" => Some("RIGHT"),
+            _ => None,
+        };
 
-        if let (Some(dir), Some(player)) = (direction, my_player_clone_for_move.borrow().as_ref()) {
+        if let (Some(dir), Some(player)) = (direction, my_player_clone.borrow().as_ref()) {
             event.prevent_default();
-            let payload = MovePayload { player_id: player.id, direction: dir.to_string() };
-            let client_clone_inner = client_clone_for_move.clone();
+            let payload = MovePayload {
+                player_id: player.id,
+                direction: dir.to_string(),
+            };
+            
+            let client_inner = client_clone.clone();
             spawn_local(async move {
-                let _ = client_clone_inner
-                    .post(format!("{}/game/execute_move", API_BASE_URL))
+                let _ = client_inner
+                    .post(format!("{}/game/move", API_BASE_URL))
                     .json(&payload)
                     .send()
                     .await;
             });
         }
     });
-    window().add_event_listener_with_callback("keydown", keydown_callback.as_ref().unchecked_ref())?;
+    
+    window()
+        .add_event_listener_with_callback("keydown", keydown_callback.as_ref().unchecked_ref())?;
     keydown_callback.forget();
 
-    let game_state_clone_for_draw = game_state.clone();
-    let my_player_clone_for_draw = my_player.clone();
-    let drawing_loop_callback = Rc::new(RefCell::new(None));
-    let g = drawing_loop_callback.clone();
+    // Drawing loop
+    let game_state_clone = game_state.clone();
+    let my_player_clone = my_player.clone();
+    let drawing_loop = Rc::new(RefCell::new(None));
+    let g = drawing_loop.clone();
+    
     *g.borrow_mut() = Some(Closure::<dyn FnMut()>::new(move || {
-        if let Some(state) = game_state_clone_for_draw.borrow().as_ref() {
-            if let Some(player) = my_player_clone_for_draw.borrow().as_ref() {
-                draw_game(&get_canvas_context(), state, player.id);
-            }
+        if let (Some(state), Some(player)) = (
+            game_state_clone.borrow().as_ref(),
+            my_player_clone.borrow().as_ref()
+        ) {
+            draw_game(&get_canvas_context(), state, player.id);
         }
-        request_animation_frame(drawing_loop_callback.borrow().as_ref().unwrap());
+        request_animation_frame(drawing_loop.borrow().as_ref().unwrap());
     }));
+    
     request_animation_frame(g.borrow().as_ref().unwrap());
     
     let game_state_clone_for_poll = game_state;
-    let game_loop_callback = Closure::<dyn FnMut()>::new(move || {
+    let poll_callback = Rc::new(RefCell::new(None));
+    let p = poll_callback.clone();
+
+    *p.borrow_mut() = Some(Closure::<dyn FnMut()>::new(move || {
         let gs_clone = game_state_clone_for_poll.clone();
         let client_clone_inner = client.clone();
+        let poll_callback_clone = poll_callback.clone();
+
         spawn_local(async move {
+            let mut next_delay_ms = 1000;
+
             if let Ok(resp) = client_clone_inner.get(format!("{}/game/state", API_BASE_URL)).send().await {
-                if let Ok(state_response) = resp.json::<StateResponse>().await {
-                    *gs_clone.borrow_mut() = Some(state_response.state);
+                log(&format!("requisiação do game/state"));
+                if let Ok(response) = resp.json::<StateResponse>().await {
+                    let state = response.state; // Extrai o GameState de dentro da resposta
+                    log(&format!("status {:?}", state.status));
+                    match state.status {
+                        GameStatus::WaitingForPlayers => {
+                            log("Aguardando mais jogadores para começar...");
+                            next_delay_ms = 2000;
+                        },
+                        GameStatus::InProgress => {
+                            next_delay_ms = 35;
+                        },
+                        GameStatus::Finished => {
+                            log("Jogo encerrado. Parando requisições.");
+                            *gs_clone.borrow_mut() = Some(state);
+                            return;
+                        }
+                    }
+                    *gs_clone.borrow_mut() = Some(state);
                 }
             }
+
+            if let Some(next_poll) = poll_callback_clone.borrow().as_ref() {
+                set_timeout(next_poll, next_delay_ms);
+            }
         });
-    });
-    window().set_interval_with_callback_and_timeout_and_arguments_0(game_loop_callback.as_ref().unchecked_ref(), 35)?;
-    game_loop_callback.forget();
+
+    }));
+
+    if let Some(initial_poll) = p.borrow().as_ref() {
+        set_timeout(initial_poll, 0);
+    }
 
     Ok(())
 }

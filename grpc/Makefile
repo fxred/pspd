@@ -46,11 +46,11 @@ run-ruby:
 
 run-all:
 	@mkdir -p logs
-	@cd service_a && go run main.go > ./logs/service_a.log 2>&1 & echo $$! > ./logs/service_a.pid
+	@cd service_a && go run main.go > logs/service_a.log 2>&1 & echo $$! > logs/service_a.pid
 	@sleep 2
-	@cd service_b && go run main.go > ./logs/service_b.log 2>&1 & echo $$! > ./logs/service_b.pid
+	@cd service_b && go run main.go > logs/service_b.log 2>&1 & echo $$! > logs/service_b.pid
 	@sleep 2
-	@cd gateway_p && ruby gateway_p_ruby.rb > ./logs/gateway_p.log 2>&1 & echo $$! > ./logs/gateway_p.pid
+	@cd gateway_p && ruby gateway_p_ruby.rb > logs/gateway_p.log 2>&1 & echo $$! > logs/gateway_p.pid
 	@echo "✅ Todos os servidores subiram"
 	@echo ""
 	@echo "Service A (Move):  http://localhost:50051 (gRPC)"
@@ -93,3 +93,8 @@ test-http:
 test-grpc:
 	grpcurl -plaintext -d '{}' localhost:50051 gamestate.GameStateService/JoinGame
 	grpcurl -plaintext -d '{}' localhost:50051 gamestate.GameStateService/GetGameState
+
+make build-client:
+	@rm -rf target && rm -rf wasm_game_client/www/pkg
+	@cargo build --target wasm32-unknown-unknown --release --package wasm_game_client 
+	@wasm-bindgen --out-dir wasm_game_client/www/pkg --target web target/wasm32-unknown-unknown/release/wasm_game_client.wasm

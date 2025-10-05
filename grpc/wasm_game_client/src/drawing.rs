@@ -1,5 +1,5 @@
 use super::utils::document;
-use game_kernel::*;
+use game_kernel::{GameState, GameStatus, PlayerId, CellStateEnum};
 use std::collections::HashMap;
 use wasm_bindgen::JsCast;
 use web_sys::CanvasRenderingContext2d;
@@ -9,26 +9,39 @@ pub fn draw_game(ctx: &CanvasRenderingContext2d, state: &GameState, my_id: Playe
     let cell_width = (canvas.width() as f64 / state.width as f64).max(1.0);
     let cell_height = (canvas.height() as f64 / state.height as f64).max(1.0);
 
+    // Fundo
     ctx.set_fill_style_str("#34495e");
     ctx.fill_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
 
-    for (y, row) in state.grid.iter().enumerate() {
-        for (x, cell) in row.iter().enumerate() {
-            let color = match cell {
-                CellState::Neutral => "#7f8c8d".to_string(),
-                CellState::Owned(id) => state.players.get(id).map_or("#bdc3c7".to_string(), |p| p.color.clone()),
+    // 🔹 Desenha o grid e as células
+    for (y, row) in state.grid.rows.iter().enumerate() {
+        for (x, cell) in row.cells.iter().enumerate() {
+            let color = match cell.state {
+                CellStateEnum::Neutral => "#7f8c8d".to_string(),
+                CellStateEnum::Owned => state
+                    .players
+                    .get(&cell.owner_id.to_string())
+                    .map_or("#bdc3c7".to_string(), |p| p.color.clone()),
             };
+
             ctx.set_fill_style_str(&color);
-            ctx.fill_rect(x as f64 * cell_width, y as f64 * cell_height, cell_width, cell_height);
+            ctx.fill_rect(
+                x as f64 * cell_width,
+                y as f64 * cell_height,
+                cell_width,
+                cell_height,
+            );
         }
     }
 
+    // 🔹 Desenha os jogadores
     for player in state.players.values() {
         let center_x = player.x as f64 * cell_width + cell_width / 2.0;
         let center_y = player.y as f64 * cell_height + cell_height / 2.0;
-        
+
         ctx.begin_path();
-        ctx.arc(center_x, center_y, cell_width / 2.5, 0.0, std::f64::consts::PI * 2.0).unwrap();
+        ctx.arc(center_x, center_y, cell_width / 2.5, 0.0, std::f64::consts::PI * 2.0)
+            .unwrap();
         ctx.set_fill_style_str(&player.color);
         ctx.fill();
         ctx.set_stroke_style_str("white");
@@ -37,39 +50,45 @@ pub fn draw_game(ctx: &CanvasRenderingContext2d, state: &GameState, my_id: Playe
 
         if player.id == my_id {
             ctx.begin_path();
-            ctx.arc(center_x, center_y, cell_width / 5.0, 0.0, std::f64::consts::PI * 2.0).unwrap();
+            ctx.arc(center_x, center_y, cell_width / 5.0, 0.0, std::f64::consts::PI * 2.0)
+                .unwrap();
             ctx.set_fill_style_str("white");
             ctx.fill();
         }
     }
 
-    let status_element = document().get_element_by_id("status-message").unwrap()
-        .dyn_into::<web_sys::HtmlElement>().unwrap();
-    
+    let status_element = document()
+        .get_element_by_id("status-message")
+        .unwrap()
+        .dyn_into::<web_sys::HtmlElement>()
+        .unwrap();
+
     let status_text = match state.status {
-        GameStatus::WaitingForPlayers => format!("Aguardando jogadores... ({}/{})", state.players.len(), 2),
+        GameStatus::WaitingForPlayers => {
+            format!("Aguardando jogadores... ({}/{})", state.players.len(), 2)
+        }
         GameStatus::InProgress => format!("Jogo em andamento! Você é o Jogador {}", my_id),
         GameStatus::Finished => {
             let mut scores: HashMap<PlayerId, usize> = HashMap::new();
-            for row in &state.grid {
-                for cell in row {
-                    if let CellState::Owned(id) = cell {
-                        *scores.entry(*id).or_insert(0) += 1;
+            for row in &state.grid.rows {
+                for cell in &row.cells {
+                    if cell.state == CellStateEnum::Owned {
+                        *scores.entry(cell.owner_id).or_insert(0) += 1;
                     }
                 }
             }
+
             let winner = scores.iter().max_by_key(|&(_, score)| score);
-            
+
             if let Some((id, _)) = winner {
                 format!("Fim de jogo! Vencedor: Jogador {}", id)
-            }
-            else {
+            } else {
                 "Fim de jogo!".to_string()
             }
         }
     };
     status_element.set_inner_text(&status_text);
-    
+
     draw_scores(ctx, state);
 }
 
@@ -84,9 +103,12 @@ fn draw_scores(ctx: &CanvasRenderingContext2d, state: &GameState) {
         .map(|player| {
             let score = state
                 .grid
+                .rows
                 .iter()
-                .flatten()
-                .filter(|&&cell| cell == CellState::Owned(player.id))
+                .flat_map(|row| row.cells.iter())
+                .filter(|cell| {
+                    cell.state == CellStateEnum::Owned && cell.owner_id == player.id
+                })
                 .count();
             (player, score)
         })

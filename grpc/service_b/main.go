@@ -71,6 +71,12 @@ func (s *GameStateServer) JoinGame(ctx context.Context, req *pb.JoinGameRequest)
 		Color: color,
 	}
 
+	if newPlayer.Y == 0 {
+		newPlayer.Y = 1
+	}
+
+	fmt.Println(newPlayer.Y)
+
 	if s.state.Players == nil {
 		s.state.Players = make(map[int32]*pb.Player)
 	}
@@ -136,7 +142,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	gameServer := NewGameStateServer(15, 15)
+	gameServer := NewGameStateServer(16, 16)
 	pb.RegisterGameStateServiceServer(grpcServer, gameServer)
 	
 	

@@ -462,6 +462,7 @@ func (x *GameState) GetCurrentTurn() int32 {
 	return 0
 }
 
+// Request/Response messages
 type ValidateMoveRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CurrentState  *GameState             `protobuf:"bytes,1,opt,name=current_state,json=currentState,proto3" json:"current_state,omitempty"`
