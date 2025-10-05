@@ -8,6 +8,7 @@ import (
 	"sync"
 
 	pb "service_b/proto"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
@@ -69,10 +70,6 @@ func (s *GameStateServer) JoinGame(ctx context.Context, req *pb.JoinGameRequest)
 		X:     pos[0],
 		Y:     pos[1],
 		Color: color,
-	}
-
-	if newPlayer.Y == 0 {
-		newPlayer.Y = 1
 	}
 
 	fmt.Println(newPlayer.Y)
@@ -144,8 +141,7 @@ func main() {
 	grpcServer := grpc.NewServer()
 	gameServer := NewGameStateServer(16, 16)
 	pb.RegisterGameStateServiceServer(grpcServer, gameServer)
-	
-	
+
 	reflection.Register(grpcServer)
 
 	log.Printf("Serviço B de Estado gRPC rodando na porta %d", port)

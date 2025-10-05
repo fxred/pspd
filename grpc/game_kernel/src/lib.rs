@@ -4,19 +4,22 @@ use std::collections::HashMap;
 pub type PlayerId = i32;
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Debug)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum GameStatus {
-    WaitingForPlayers, // Corresponde ao valor 0 do Protobuf
-    InProgress,        // Corresponde ao valor 1 do Protobuf
-    Finished,          // Corresponde ao valor 2 do Protobuf
+    WaitingForPlayers, 
+    InProgress,        
+    Finished,          
 }
 
 #[derive(Serialize, Deserialize, Clone, Copy, PartialEq, Debug)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum CellStateEnum {
-    Neutral, // Corresponde ao valor 0 do Protobuf
-    Owned,   // Corresponde ao valor 1 do Protobuf
+    Neutral, 
+    Owned,
 }
 
 #[derive(Serialize, Deserialize, Clone, Debug)]
+#[serde(rename_all = "camelCase")]
 pub struct Cell {
     pub state: CellStateEnum,
     pub owner_id: i32,

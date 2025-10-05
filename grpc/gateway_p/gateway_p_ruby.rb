@@ -2,6 +2,8 @@ require 'sinatra'
 require 'json'
 require 'grpc'
 require 'rack/cors'
+require 'google/protobuf/well_known_types'
+
 
 $LOAD_PATH.unshift(File.expand_path('./lib', __dir__))
 
@@ -39,7 +41,7 @@ class GameHTTPBridge < Sinatra::Base
 
   post '/game/join' do
     resp = $game_state_stub.join_game(Gamestate::JoinGameRequest.new)
-    { player: resp.player.to_h, error: resp.error }.to_json
+    Google::Protobuf.encode_json(resp, emit_defaults: true)
   rescue => e
     status 500
     { error: e.message }.to_json
@@ -47,7 +49,7 @@ class GameHTTPBridge < Sinatra::Base
 
   get '/game/state' do
     resp = $game_state_stub.get_game_state(Gamestate::GetGameStateRequest.new)
-    { state: resp.state.to_h }.to_json
+    Google::Protobuf.encode_json(resp, emit_defaults: true)
   rescue => e
     status 500
     { error: e.message }.to_json
@@ -75,11 +77,7 @@ class GameHTTPBridge < Sinatra::Base
     )
     
     resp = $game_move_stub.execute_move(req)
-    {
-      new_state: resp.new_state&.to_h,
-      game_finished: resp.game_finished,
-      error: resp.error
-    }.to_json
+    Google::Protobuf.encode_json(resp, emit_defaults: true)
   rescue => e
     status 500
     { error: e.message }.to_json
