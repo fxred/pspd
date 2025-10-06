@@ -2,9 +2,12 @@
 
 ## Introduction
 
-gRPC bidirectional streaming allows both the client and server to send a stream of messages to each other independently. This is useful for chat systems, live data feeds, or any scenario where both sides need to communicate asynchronously.
+client <---> server
+server <---> client
 
-In this example, the client can send messages to the server, and the server responds to each message in real time.
+Nesse exemplo é implementado o streaming bidirecional do gRPC que permite tanto o cliente quanto o servidor enviem fluxos de mensagens um para o outro de forma independente. Isso é útil para sistemas de chat, transmissões de dados em tempo real ou qualquer cenário em que ambos os lados precisem se comunicar de maneira assíncrona.
+
+Neste exemplo, o cliente pode enviar mensagens para o servidor, e o servidor responde a cada mensagem em tempo real.
 
 ## Step-by-step Instructions
 

@@ -2,9 +2,12 @@
 
 ## Introduction
 
-A gRPC server streaming connection allows the server to send a stream of messages in response to a single client request. The client sends one request and receives a sequence of responses, which is useful for scenarios like progress updates, logs, or lists of items.
+client -> server
+server ->>> client
 
-In this example, the client sends a name to the server, and the server responds with a stream of greeting messages.
+Nesse exemplo é implementado uma conexão de server_streaming gRPC que  permite que o servidor envie um fluxo de mensagens em resposta a uma única requisição do cliente. O cliente faz uma requisição e recebe uma sequência de respostas, o que é útil para cenários como atualizações de progresso, logs ou listas de itens.
+
+Neste exemplo, o cliente envia um nome para o servidor, e o servidor responde com um fluxo de mensagens de saudação.
 
 ## Step-by-step Instructions
 
