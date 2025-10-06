@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package greetbistream;
+option go_package = "./greetbistream;greetbistream";
+
+service Greeter {
+  // Bidirectional streaming RPC
+  rpc Chat (stream ChatMessage) returns (stream ChatMessage) {}
+}
+
+message ChatMessage {
+  string sender = 1;
+  string message = 2;
+}
