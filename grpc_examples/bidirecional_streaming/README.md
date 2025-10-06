@@ -5,9 +5,9 @@
 client <---> server
 server <---> client
 
-Nesse exemplo é implementado o streaming bidirecional do gRPC que permite tanto o cliente quanto o servidor enviem fluxos de mensagens um para o outro de forma independente. Isso é útil para sistemas de chat, transmissões de dados em tempo real ou qualquer cenário em que ambos os lados precisem se comunicar de maneira assíncrona.
+Nesse exemplo é implementado o streaming bidirecional do gRPC que permite tanto o cliente quanto o servidor enviarem fluxos de mensagens um para o outro de forma independente. Isso é útil para sistemas de chat, transmissões de dados em tempo real ou qualquer cenário em que ambos os lados precisem se comunicar de maneira assíncrona.
 
-Neste exemplo, o cliente pode enviar mensagens para o servidor, e o servidor responde a cada mensagem em tempo real.
+**Agora, o servidor funciona como uma sala de chat: toda mensagem enviada por um cliente é transmitida (broadcast) para todos os outros clientes conectados em tempo real.**
 
 ## Step-by-step Instructions
 
@@ -47,7 +47,7 @@ Type your name and message in the format:
 Alice: Hello!
 Bob: Hi Alice!
 ```
-You will see the server's response for each message you send.
+Todas as mensagens enviadas por um cliente serão recebidas por todos os outros clientes conectados, simulando uma sala de chat em tempo real.
 
 ## Files
 - `greetbistream.proto`: Protocol Buffers service definition
