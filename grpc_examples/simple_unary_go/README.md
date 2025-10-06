@@ -22,8 +22,8 @@ protoc --go_out=. --go-grpc_out=. helloworld.proto
 
 ### 3. Build the server and client
 ```bash
-go build -o server server.go helloworld.pb.go helloworld_grpc.pb.go
-go build -o client client.go helloworld.pb.go helloworld_grpc.pb.go
+go build -o server server.go
+go build -o client client.go
 ```
 
 ### 4. Run the server
