@@ -27,6 +27,6 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=builder /app/target/release/servico_b /usr/local/bin/servico_b
 
-EXPOSE 3002
+EXPOSE 3001
 
 CMD ["/usr/local/bin/servico_b"]
