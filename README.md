@@ -13,6 +13,5 @@ Passos:
     `cd rest`
     `./starrt.sh` ou `./starrt.ps1`
 
-OBS: Alguns usuários podem precisar instalar o Python3 também.  
+OBS: Alguns usuários podem precisar instalar o Python3 e a `libssl-dev` também.  
 OBS2: Na pasta `game_client` é possível jogar pelo terminal.
-OBS3: Verifique se possiu o `libssl-dev` instalado 
