@@ -2,9 +2,12 @@
 
 ## Introduction
 
-gRPC client streaming allows a client to send a stream of messages to the server, and then receive a single response. This is useful for scenarios where the client needs to send a batch of data, such as uploading logs, sensor data, or a list of items.
+client ->> server
+server -> client
 
-In this example, the client sends multiple names to the server, and the server replies with a summary after all names are sent.
+Nesse exemplo é implementado o "client streaming" do gRPC que permite que um cliente envie um fluxo de mensagens para o servidor e, em seguida, receba uma única resposta. Isso é útil para cenários em que o cliente precisa enviar um lote de dados, como upload de logs, dados de sensores ou uma lista de itens.
+
+Neste exemplo, o cliente envia vários nomes para o servidor, e o servidor responde com um resumo após todos os nomes serem enviados.
 
 ## Step-by-step Instructions
 

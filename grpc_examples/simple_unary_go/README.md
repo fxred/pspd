@@ -1,6 +1,9 @@
 # Simple gRPC Unary Example in Go
 
-This example demonstrates a minimal gRPC unary connection in Go. The client sends a single request and receives a single response from the server.
+client -> server 
+server -> client
+
+Este exemplo demonstra uma conexão gRPC unary mínima em Go. O cliente envia uma única requisição e recebe uma única resposta do servidor.
 
 ## Step-by-step Instructions
 
