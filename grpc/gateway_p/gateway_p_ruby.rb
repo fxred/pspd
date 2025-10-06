@@ -1,7 +1,6 @@
-require 'sinatra'
+require 'sinatra/base'
 require 'json'
 require 'grpc'
-require 'rack/cors'
 require 'google/protobuf/well_known_types'
 
 
@@ -25,15 +24,10 @@ $game_move_stub = Gamemovement::GameMoveService::Stub.new(
 )
 
 class GameHTTPBridge < Sinatra::Base
-  use Rack::Cors do
-    allow do
-      origins '*'
-      resource '*', headers: :any, methods: [:get, :post, :options]
-    end
-  end
 
   set :port, 8082
   set :bind, '0.0.0.0'
+  set :host_authorization, permitted_hosts: []
 
   before do
     content_type 'application/json'
@@ -71,7 +65,19 @@ class GameHTTPBridge < Sinatra::Base
                   return { error: 'Invalid direction' }.to_json
                 end
 
+    begin
+        current_state_response = $game_state_stub.get_game_state(Gamestate::GetGameStateRequest.new)
+        current_state = current_state_response.state
+    rescue GRPC::Unavailable => e
+        status 503
+        return { error: "Serviço de estado do jogo indisponível: #{e.message}" }.to_json
+    end
+
+
+	current_state_hash = current_state.to_h
+	
     req = Gamemovement::ExecuteMoveRequest.new(
+      current_state: current_state_hash,
       player_id: player_id,
       direction: direction
     )
@@ -80,6 +86,9 @@ class GameHTTPBridge < Sinatra::Base
     Google::Protobuf.encode_json(resp, emit_defaults: true)
   rescue => e
     status 500
+    puts "!!!!!!!!!!!!! ERRO DETALHADO !!!!!!!!!!!!!"
+    puts e.full_message
+    puts "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
     { error: e.message }.to_json
   end
 
@@ -94,13 +103,4 @@ class GameHTTPBridge < Sinatra::Base
       ]
     }.to_json
   end
-end
-
-if __FILE__ == $0
-  puts "Gateway HTTP do Jogo está iniciando..."
-  puts "Conectando ao Serviço B (Estado):    #{GAMESTATE_GRPC_ADDRESS}"
-  puts "Conectando ao Serviço A (Movimento): #{GAMEMOVE_GRPC_ADDRESS}"
-  puts "API HTTP disponível em: http://localhost:8082"
-  puts ""
-  GameHTTPBridge.run!
 end

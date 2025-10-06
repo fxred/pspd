@@ -7,7 +7,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen_futures::spawn_local;
 use web_sys::KeyboardEvent;
 
-const API_BASE_URL: &str = "http://127.0.0.1:8082";
+const API_BASE_URL: &str = "/";
 
 pub async fn run_app() -> Result<(), JsValue> {
     let my_player: Rc<RefCell<Option<Player>>> = Rc::new(RefCell::new(None));
