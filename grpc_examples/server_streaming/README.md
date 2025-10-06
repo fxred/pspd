@@ -26,8 +26,8 @@ protoc --go_out=. --go-grpc_out=. greetstream.proto
 
 ### 3. Build the server and client
 ```bash
-go build -o server server.go greetstream/greetstream.pb.go greetstream/greetstream_grpc.pb.go
-go build -o client client.go greetstream/greetstream.pb.go greetstream/greetstream_grpc.pb.go
+go build -o server server.go 
+go build -o client client.go 
 ```
 
 ### 4. Run the server
