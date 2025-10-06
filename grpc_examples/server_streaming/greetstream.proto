@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+package greetstream;
+option go_package = "./greetstream;greetstream";
+
+service Greeter {
+  // Server streaming RPC
+  rpc ListGreetings (GreetRequest) returns (stream GreetReply) {}
+}
+
+message GreetRequest {
+  string name = 1;
+}
+
+message GreetReply {
+  string message = 1;
+}
