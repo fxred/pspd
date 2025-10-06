@@ -99,8 +99,19 @@ class GameHTTPBridge < Sinatra::Base
       endpoints: [
         'POST /game/join    -> Service B (GameStateService)',
         'GET  /game/state   -> Service B (GameStateService)',
-        'POST /game/move    -> Service A (GameMoveService)'
+        'POST /game/move    -> Service A (GameMoveService)',
+        'POST /game/restart -> Service B (GameStateService)'
       ]
     }.to_json
+  end
+
+  post '/game/restart' do
+    begin
+      resp = $game_state_stub.restart_game(Gamestate::RestartGameRequest.new)
+      Google::Protobuf.encode_json(resp, emit_defaults: true)
+    rescue => e
+      status 500
+      { error: e.message }.to_json
+    end
   end
 end

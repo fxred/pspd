@@ -1,8 +1,8 @@
-use super::utils::document;
-use game_kernel::{GameState, GameStatus, PlayerId, CellStateEnum};
+use super::utils::{document};
+use game_kernel::{GameState, GameStatus, Player, PlayerId, CellStateEnum};
 use std::collections::HashMap;
 use wasm_bindgen::JsCast;
-use web_sys::CanvasRenderingContext2d;
+use web_sys::{CanvasRenderingContext2d, HtmlElement};
 
 pub fn draw_game(ctx: &CanvasRenderingContext2d, state: &GameState, my_id: PlayerId) {
     let canvas = ctx.canvas().unwrap();
@@ -13,7 +13,7 @@ pub fn draw_game(ctx: &CanvasRenderingContext2d, state: &GameState, my_id: Playe
     ctx.set_fill_style_str("#34495e");
     ctx.fill_rect(0.0, 0.0, canvas.width() as f64, canvas.height() as f64);
 
-    // 🔹 Desenha o grid e as células
+    // Desenha o grid e as células
     for (y, row) in state.grid.rows.iter().enumerate() {
         for (x, cell) in row.cells.iter().enumerate() {
             let color = match cell.state {
@@ -34,7 +34,7 @@ pub fn draw_game(ctx: &CanvasRenderingContext2d, state: &GameState, my_id: Playe
         }
     }
 
-    // 🔹 Desenha os jogadores
+    // Desenha os jogadores
     for player in state.players.values() {
         let center_x = player.x as f64 * cell_width + cell_width / 2.0;
         let center_y = player.y as f64 * cell_height + cell_height / 2.0;
@@ -57,47 +57,52 @@ pub fn draw_game(ctx: &CanvasRenderingContext2d, state: &GameState, my_id: Playe
         }
     }
 
-    let status_element = document()
-        .get_element_by_id("status-message")
-        .unwrap()
-        .dyn_into::<web_sys::HtmlElement>()
-        .unwrap();
-
-    let status_text = match state.status {
-        GameStatus::WaitingForPlayers => {
-            format!("Aguardando jogadores... ({}/{})", state.players.len(), 2)
-        }
-        GameStatus::InProgress => format!("Jogo em andamento! Você é o Jogador {}", my_id),
-        GameStatus::Finished => {
-            let mut scores: HashMap<PlayerId, usize> = HashMap::new();
-            for row in &state.grid.rows {
-                for cell in &row.cells {
-                    if cell.state == CellStateEnum::Owned {
-                        *scores.entry(cell.owner_id).or_insert(0) += 1;
-                    }
-                }
-            }
-
-            let winner = scores.iter().max_by_key(|&(_, score)| score);
-
-            if let Some((id, _)) = winner {
-                format!("Fim de jogo! Vencedor: Jogador {}", id)
-            } else {
-                "Fim de jogo!".to_string()
-            }
-        }
-    };
-    status_element.set_inner_text(&status_text);
-
-    draw_scores(ctx, state);
+    update_info_panel(state, my_id);
 }
 
-fn draw_scores(ctx: &CanvasRenderingContext2d, state: &GameState) {
-    ctx.set_fill_style_str("white");
-    ctx.set_font("16px Arial");
-    ctx.set_text_align("left");
+fn update_info_panel(state: &GameState, my_id: PlayerId) {
+    let doc = document();
+    let player_id_display = doc.get_element_by_id("player-id-display").unwrap().dyn_into::<HtmlElement>().unwrap();
+    let winner_display = doc.get_element_by_id("winner-display").unwrap().dyn_into::<HtmlElement>().unwrap();
+    let scores_container = doc.get_element_by_id("scores").unwrap().dyn_into::<HtmlElement>().unwrap();
 
-    let mut player_scores: Vec<_> = state
+    // Limpa o conteúdo anterior
+    winner_display.set_inner_text("");
+    scores_container.set_inner_html("");
+
+    match state.status {
+        GameStatus::WaitingForPlayers => {
+            player_id_display.set_inner_text(&format!("Aguardando... Você é o Jogador {}", my_id));
+        }
+        GameStatus::InProgress => {
+            player_id_display.set_inner_text(&format!("Você é o Jogador {}", my_id));
+            draw_scores_html(scores_container, state);
+        }
+        GameStatus::Finished => {
+            player_id_display.set_inner_text(&format!("Você é o Jogador {}", my_id));
+            draw_scores_html(scores_container, state);
+
+            let winner_id = calculate_winner(state);
+            if let Some(id) = winner_id {
+                let winner_info = state.players.get(&id.to_string()).unwrap();
+                winner_display.set_inner_html(&format!(
+                    "Fim de Jogo! <span style='color: {}; font-weight: bold;'>Vencedor: Jogador {}</span>",
+                    winner_info.color, id
+                ));
+            } else {
+                winner_display.set_inner_text("Fim de Jogo! Empate!");
+            }
+            
+            // Mostra o botão de reiniciar
+            if let Some(btn) = doc.get_element_by_id("restart-button") {
+                btn.dyn_into::<HtmlElement>().unwrap().style().set_property("display", "block").unwrap();
+            }
+        }
+    }
+}
+
+fn draw_scores_html(container: HtmlElement, state: &GameState) {
+    let mut player_scores: Vec<(&Player, usize)> = state
         .players
         .values()
         .map(|player| {
@@ -106,25 +111,33 @@ fn draw_scores(ctx: &CanvasRenderingContext2d, state: &GameState) {
                 .rows
                 .iter()
                 .flat_map(|row| row.cells.iter())
-                .filter(|cell| {
-                    cell.state == CellStateEnum::Owned && cell.owner_id == player.id
-                })
+                .filter(|cell| cell.state == CellStateEnum::Owned && cell.owner_id == player.id)
                 .count();
             (player, score)
         })
         .collect();
 
-    player_scores.sort_by(|a, b| b.1.cmp(&a.1));
+    // Ordena por score (desc) e depois por ID (asc) para estabilidade
+    player_scores.sort_by(|a, b| b.1.cmp(&a.1).then_with(|| a.0.id.cmp(&b.0.id)));
 
-    let mut y_offset = 20.0;
+    let mut scores_html = String::new();
     for (player, score) in player_scores {
-        let score_text = format!("Jogador {}: {} pontos", player.id, score);
-
-        ctx.set_fill_style_str(&player.color);
-        ctx.fill_rect(10.0, y_offset - 12.0, 12.0, 12.0);
-
-        ctx.set_fill_style_str("white");
-        ctx.fill_text(&score_text, 30.0, y_offset).unwrap();
-        y_offset += 20.0;
+        scores_html.push_str(&format!(
+            r#"<div class="score-box" style="color: {};">Jogador {}: {}</div>"#,
+            player.color, player.id, score
+        ));
     }
+    container.set_inner_html(&scores_html);
+}
+
+fn calculate_winner(state: &GameState) -> Option<PlayerId> {
+    let mut scores: HashMap<PlayerId, usize> = HashMap::new();
+    for row in &state.grid.rows {
+        for cell in &row.cells {
+            if cell.state == CellStateEnum::Owned {
+                *scores.entry(cell.owner_id).or_insert(0) += 1;
+            }
+        }
+    }
+    scores.into_iter().max_by_key(|&(_, score)| score).map(|(id, _)| id)
 }
