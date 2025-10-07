@@ -3,3 +3,4 @@ pkg/
 *.lock
 logs/
 .bundle/
+vendor/
