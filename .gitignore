@@ -2,3 +2,4 @@ target/
 pkg/
 *.lock
 logs/
+.bundle/
