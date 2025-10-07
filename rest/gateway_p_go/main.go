@@ -1,18 +1,26 @@
 package main
 
 import (
-	"bytes"
-	"io"
-	"net/http"
+    "bytes"
+    "io"
+    "net/http"
+    "os"
 
-	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/gin"
+    "github.com/gin-contrib/cors"
+    "github.com/gin-gonic/gin"
 )
 
-const (
-	serviceA_URL = "http://127.0.0.1:3002"
-	serviceB_URL = "http://127.0.0.1:3001"
+var (
+    serviceA_URL = getenvDefault("SERVICE_A_URL", "http://service-a:3002")
+    serviceB_URL = getenvDefault("SERVICE_B_URL", "http://service-b:3001")
 )
+
+func getenvDefault(key, def string) string {
+    if v := os.Getenv(key); v != "" {
+        return v
+    }
+    return def
+}
 
 func proxyRequest(c *gin.Context, targetURL string) {
 	body, err := io.ReadAll(c.Request.Body)

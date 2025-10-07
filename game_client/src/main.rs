@@ -60,7 +60,7 @@ pub struct MovePayload<'a> {
 // CONSTANTES E CONFIGURAÇÃO
 // ===================================================================================
 
-const API_BASE_URL: &str = "http://127.0.0.1:8000";
+const API_BASE_URL: &str = "http://localhost:8000";
 
 // ===================================================================================
 // FUNÇÃO PRINCIPAL
