@@ -10,7 +10,8 @@ Passos:
 2. Adicionar o wasm32-unknown-unknown como target:
     `rustup target add wasm32-unknown-unknown`
 3. Executar o script starrt.sh (linux) ou starrt.ps1 (windows)
+    `cd rest`
     `./starrt.sh` ou `./starrt.ps1`
 
-OBS: Alguns usuários podem precisar instalar o Python3 também.  
+OBS: Alguns usuários podem precisar instalar o Python3 e a `libssl-dev` também.  
 OBS2: Na pasta `game_client` é possível jogar pelo terminal.

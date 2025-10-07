@@ -1,4 +1,6 @@
 target/
 pkg/
-Cargo.lock
+*.lock
 logs/
+.bundle/
+vendor/

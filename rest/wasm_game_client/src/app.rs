@@ -8,7 +8,7 @@ use wasm_bindgen_futures::spawn_local;
 use web_sys::KeyboardEvent;
 
 
-const API_BASE_URL: &str = "http://127.0.0.1:8000";
+const API_BASE_URL: &str = "/";
 
 pub async fn run_app() -> Result<(), JsValue> {
     let my_player: Rc<RefCell<Option<Player>>> = Rc::new(RefCell::new(None));
@@ -103,7 +103,7 @@ pub async fn run_app() -> Result<(), JsValue> {
                             next_delay_ms = 2000;
                         },
                         GameStatus::InProgress => {
-                            next_delay_ms = 35;
+                            next_delay_ms = 2;
                         },
                         GameStatus::Finished => {
                             log("Jogo encerrado. Parando requisições.");
