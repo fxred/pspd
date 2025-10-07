@@ -5,11 +5,11 @@ FROM golang:alpine AS builder
 
 WORKDIR /app
 # Copia os módulos e o código
-COPY service_a/go.mod service_a/go.sum ./
+COPY service_b/go.mod service_b/go.sum ./
 RUN go mod download
-COPY service_a/main.go . 
+COPY service_b/main.go . 
 # Copia o subdiretório proto (necessário para o gRPC/protobufs)
-COPY service_a/proto ./proto
+COPY service_b/proto ./proto
 
 # Compila o binário estático para Linux
 # O CGO_ENABLED=0 garante que o binário não dependa de bibliotecas dinâmicas do sistema

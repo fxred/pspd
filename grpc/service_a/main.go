@@ -8,6 +8,7 @@ import (
 
 	gamemovementpb "service_a/proto/a"
 	gamestatepb "service_a/proto/b"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -15,7 +16,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-const serviceBAddr = "localhost:50051"
+const serviceBAddr = "service-b-service:50051"
 
 type GameMoveService struct {
 	gamemovementpb.UnimplementedGameMoveServiceServer
@@ -32,7 +33,6 @@ func NewGameMoveService() (*GameMoveService, error) {
 		stateClient: gamestatepb.NewGameStateServiceClient(conn),
 	}, nil
 }
-
 
 func (s *GameMoveService) ValidateMove(ctx context.Context, req *gamemovementpb.ValidateMoveRequest) (*gamemovementpb.ValidateMoveResponse, error) {
 	state := req.CurrentState
@@ -171,7 +171,6 @@ func (s *GameMoveService) GetValidMoves(ctx context.Context, req *gamemovementpb
 	return &gamemovementpb.GetValidMovesResponse{ValidMoves: validMoves}, nil
 }
 
-
 func calculateNextPosition(playerX, playerY int32, direction int32, width, height int32) (int32, int32) {
 	nextX, nextY := playerX, playerY
 
@@ -240,7 +239,6 @@ func convertGameState(state *gamestatepb.GameState) *gamemovementpb.GameState {
 		CurrentTurn: 0,
 	}
 }
-
 
 func main() {
 	port := 50052

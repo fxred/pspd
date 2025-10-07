@@ -16,7 +16,7 @@ RUN rustup target add wasm32-unknown-unknown
 RUN cargo install wasm-bindgen-cli
 
 # Compila o código Rust para WASM e gera o binário
-RUN cargo build --target wasm32-unknown-unknown --release
+RUN cargo build --target wasm32-unknown-unknown --release --package wasm_game_client 
  
 # Roda o wasm-bindgen para gerar o código "cola" (glue code) JS
 # Assumindo que seu .wasm se chama 'wasm_game_client.wasm'
@@ -36,5 +36,5 @@ FROM nginx:alpine AS final
 COPY --from=builder /app/public /usr/share/nginx/html
 
 # A porta padrão do NGINX
-EXPOSE 80 
+EXPOSE 80
 # O NGINX inicia automaticamente e serve o frontend

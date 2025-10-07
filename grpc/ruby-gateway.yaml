@@ -24,7 +24,7 @@ kind: Service
 metadata:
   name: ruby-gateway-service
 spec:
-  type: ClusterIP
+  type: NodePort
   selector:
     app: ruby-gateway
   ports:

@@ -90,7 +90,6 @@ impl App {
         window().add_event_listener_with_callback("keydown", keydown_callback.as_ref().unchecked_ref())?;
         keydown_callback.forget();
 
-        // Drawing loop
         let game_state_clone = game_state.clone();
         let my_player_clone = my_player.clone();
         let drawing_loop = Rc::new(RefCell::new(None));
@@ -155,7 +154,6 @@ impl App {
             set_timeout(initial_poll, 0);
         }
 
-        // Lógica para o botão de reiniciar
         let restart_button = document().get_element_by_id("restart-button").unwrap();
         let client_clone = self.client.clone();
         let api_base_url_clone = self.api_base_url.clone();

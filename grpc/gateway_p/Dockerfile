@@ -31,4 +31,4 @@ COPY gateway_p/config.ru .
 EXPOSE 8082
 
 # Comando para iniciar o serviço Ruby (porta 8082)
-CMD ["bundle", "exec", "rackup", "-o", "0.0.0.0", "-p", "8082"]
+CMD ["rackup", "--host", "0.0.0.0", "-p", "8082"]

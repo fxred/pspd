@@ -11,8 +11,8 @@ require 'service_b/game_state_services_pb'
 require 'service_a/game_movement_pb'
 require 'service_a/game_movement_services_pb'
 
-GAMESTATE_GRPC_ADDRESS = 'localhost:50051'
-GAMEMOVE_GRPC_ADDRESS  = 'localhost:50052'
+GAMEMOVE_GRPC_ADDRESS  = 'service-a-service:50052'
+GAMESTATE_GRPC_ADDRESS = 'service-b-service:50051'
 
 $game_state_stub = Gamestate::GameStateService::Stub.new(
   GAMESTATE_GRPC_ADDRESS,
