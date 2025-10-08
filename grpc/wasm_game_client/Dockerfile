@@ -2,6 +2,7 @@ FROM rust:latest AS builder
 WORKDIR /app
 
 
+COPY wasm_game_client/Cargo.toml ./
 COPY wasm_game_client/src ./src
 COPY wasm_game_client/www ./www
 COPY game_kernel /game_kernel 
