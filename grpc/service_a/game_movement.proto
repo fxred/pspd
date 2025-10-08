@@ -1,0 +1,99 @@
+syntax = "proto3";
+
+package gamemovement;
+
+option go_package = "./proto";
+
+service GameMoveService {
+  rpc ValidateMove(ValidateMoveRequest) returns (ValidateMoveResponse);
+  rpc ExecuteMove(ExecuteMoveRequest) returns (ExecuteMoveResponse);
+  rpc GetValidMoves(GetValidMovesRequest) returns (GetValidMovesResponse);
+}
+
+// Enums
+enum GameStatus {
+  WAITING_FOR_PLAYERS = 0;
+  IN_PROGRESS = 1;
+  FINISHED = 2;
+}
+
+enum CellState {
+  NEUTRAL = 0;
+  OWNED = 1;
+}
+
+enum Direction {
+  UP = 0;
+  DOWN = 1;
+  LEFT = 2;
+  RIGHT = 3;
+}
+
+// Mensagens
+message Player {
+  int32 id = 1;
+  int32 x = 2;
+  int32 y = 3;
+  string color = 4;
+}
+
+message Cell {
+  CellState state = 1;
+  int32 owner_id = 2;
+}
+
+message GridRow {
+  repeated Cell cells = 1;
+}
+
+message Grid {
+  repeated GridRow rows = 1;
+}
+
+message GameState {
+  GameStatus status = 1;
+  int32 width = 2;
+  int32 height = 3;
+  Grid grid = 4;
+  map<int32, Player> players = 5;
+  int32 current_turn = 6;
+}
+
+// Request/Response messages
+message ValidateMoveRequest {
+  GameState current_state = 1;
+  int32 player_id = 2;
+  Direction direction = 3;
+}
+
+message ExecuteMoveRequest {
+  GameState current_state = 1;
+  int32 player_id = 2;
+  Direction direction = 3;
+}
+
+message GetValidMovesRequest {
+  GameState current_state = 1;
+  int32 player_id = 2;
+}
+
+message ValidateMoveResponse {
+  bool is_valid = 1;
+  string error = 2;
+}
+
+message ExecuteMoveResponse {
+  GameState new_state = 1;
+  bool game_finished = 2;
+  string error = 3;
+}
+
+message ValidMove {
+  Direction direction = 1;
+  int32 destination_x = 2;
+  int32 destination_y = 3;
+}
+
+message GetValidMovesResponse {
+  repeated ValidMove valid_moves = 1;
+}

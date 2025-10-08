@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Conquistadores de Território (WASM)</title>
+    <style>
+        body { 
+            display: flex; 
+            flex-direction: column;
+            align-items: center; 
+            justify-content: center; 
+            height: 100vh; 
+            margin: 0; 
+            background-color: #2c3e50; 
+            color: #ecf0f1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        #game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #game-info {
+            width: 600px;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+            text-align: center;
+        }
+        #scores {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .score-box {
+            padding: 5px 10px;
+            border-radius: 5px;
+        }
+        canvas { 
+            border: 3px solid #ecf0f1; 
+        }
+        #restart-button {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="game-info">
+            <p id="player-id-display"></p>
+            <p id="winner-display"></p>
+            <div id="scores"></div>
+        </div>
+        <canvas id="game-canvas" width="600" height="600"></canvas>
+        <button id="restart-button">Restart Game</button>
+    </div>
+    <p id="status-message" style="display: none;">Carregando...</p>
+    <script type="module" src="./index.js"></script>
+</body>
+</html>

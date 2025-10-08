@@ -1,3 +1,6 @@
-/game_client/target
-/rest-server-rust/target
-/wasm_game_client/target
+target/
+pkg/
+*.lock
+logs/
+.bundle/
+vendor/
