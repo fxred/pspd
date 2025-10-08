@@ -2,11 +2,11 @@ FROM golang:1.25 AS builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./
+COPY gateway_p_go/go.mod gateway_p_go/go.sum ./
 
 RUN go mod download
 
-COPY . .
+COPY gateway_p_go/. .
 
 RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o gateway_go .
 

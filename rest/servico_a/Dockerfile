@@ -12,9 +12,10 @@ RUN rustup default stable
 
 WORKDIR /app
 
-COPY Cargo.toml ./
+COPY servico_a/Cargo.toml ./
+COPY game_kernel /game_kernel
 
-COPY . .
+COPY servico_a/. .
 
 RUN cargo build --release --package servico_a
 

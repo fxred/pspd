@@ -10,7 +10,7 @@ use serde_json::json;
 //==================================================================================
 
 
-const SERVICE_B_URL: &str = "http://127.0.0.1:3001";
+const SERVICE_B_URL: &str = "service-b:3001";
 
 #[tokio::main]
 async fn main() {

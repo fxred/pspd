@@ -20,8 +20,10 @@ game_kernel = { path = "../game_kernel" }
 version = "0.3.69"
 features = [
   'Window',
+  'Location',
   'Document',
   'HtmlCanvasElement',
+  'CssStyleDeclaration',
   'CanvasRenderingContext2d',
   'Element',
   'HtmlElement',
