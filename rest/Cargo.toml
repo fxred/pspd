@@ -1,8 +1,8 @@
 [workspace]
 resolver = "3"
 members = [
-    "servico_a",
-    "servico_b",
+    "services/servico_a",
+    "services/servico_b",
     "wasm_game_client",
     "game_kernel"
 ]
