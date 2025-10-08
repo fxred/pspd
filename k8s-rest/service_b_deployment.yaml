@@ -25,6 +25,7 @@ kind: Service
 metadata:
   name: service-b
 spec:
+  type: ClusterIP
   selector:
     app: service-b
   ports:

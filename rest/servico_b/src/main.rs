@@ -21,7 +21,7 @@ async fn main() {
         .route("/game/state/update", post(update_game_state))
         .with_state(shared_state);
 
-    let addr: SocketAddr = "127.0.0.1:3001".parse().unwrap();
+    let addr: SocketAddr = "0.0.0.0:3001".parse().unwrap();
     println!("Serviço B (Estado) rodando em http://{}", addr);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();

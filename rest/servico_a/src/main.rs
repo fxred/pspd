@@ -10,7 +10,7 @@ use serde_json::json;
 //==================================================================================
 
 
-const SERVICE_B_URL: &str = "service-b:3001";
+const SERVICE_B_URL: &str = "http:service-b:3001";
 
 #[tokio::main]
 async fn main() {
@@ -18,7 +18,7 @@ async fn main() {
     let app = Router::new()
         .route("/game/move", post(handle_move));
 
-    let addr: SocketAddr = "127.0.0.1:3002".parse().unwrap();
+    let addr: SocketAddr = "0.0.0.0:3002".parse().unwrap();
     println!("Serviço A (Lógica) rodando em http://{}", addr);
     let listener = tokio::net::TcpListener::bind(addr).await.unwrap();
     axum::serve(listener, app).await.unwrap();

@@ -11,8 +11,8 @@ import (
 )
 
 var (
-	serviceA_URL = getenvDefault("SERVICE_A_URL", "service-a:3002")
-	serviceB_URL = getenvDefault("SERVICE_B_URL", "service-b:3001")
+	serviceA_URL = getenvDefault("SERVICE_A_URL", "http://service-a:3002")
+	serviceB_URL = getenvDefault("SERVICE_B_URL", "http://service-b:3001")
 )
 
 func getenvDefault(key, def string) string {
