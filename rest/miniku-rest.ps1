@@ -1,8 +1,8 @@
 $ErrorActionPreference = "Stop"
 
-$yamlDir = "..\k8s"
-$clientDir = "..\wasm_game_client"
-$servicesDir = "../services"
+$yamlDir = ".\k8s"
+$clientDir = ".\wasm_game_client"
+$servicesDir = "./services"
 
 Write-Host "🔨 Compilando binários..." -ForegroundColor Cyan
 .\build\build.ps1

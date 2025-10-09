@@ -9,11 +9,11 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 YAML_DIR="./k8s"
-PJ_SVCS_DIR="../services"
+PJ_SVCS_DIR="./services"
 
 
 echo "Compilando binários..."
-chmod +x build/build.sh
+chmod +x ./build.sh
 build/build-cross.sh
 
 echo "Reiniciando o Minikube..."
