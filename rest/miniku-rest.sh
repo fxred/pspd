@@ -13,7 +13,7 @@ PJ_SVCS_DIR="../services"
 
 
 echo "Compilando binários..."
-chmod +x build/build.sh
+chmod + build.sh
 build/build-cross.sh
 
 echo "Reiniciando o Minikube..."
