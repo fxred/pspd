@@ -14,7 +14,6 @@ PJ_SVCS_DIR="./services"
 
 echo "Compilando binários..."
 chmod +x ./build.sh
-build/build-cross.sh
 
 echo "Reiniciando o Minikube..."
 minikube stop
