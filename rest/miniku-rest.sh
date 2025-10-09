@@ -20,14 +20,10 @@ minikube stop
 minikube delete --all
 minikube start
 
-pushd $PJ_SVCS_DIR > /dev/null
-
 echo "Construindo imagens Docker..."
 docker build -f Dockerfile.gateway -t gateway_go:latest .
 docker build -f Dockerfile.a -t servico_a:latest .
 docker build -f Dockerfile.b -t servico_b:latest .
-
-popd > /dev/null
 
 pushd $YAML_DIR > /dev/null
 
