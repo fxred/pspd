@@ -5,17 +5,15 @@ echo "🔨 BUILD CROSS-PLATFORM - REST"
 echo "================================"
 echo ""
 
-DIST_BASE="./dist"
+BASE_DIR=$(pwd)
+DIST_BASE="$BASE_DIR/dist"
 LINUX_DIR="$DIST_BASE/linux"
-WINDOWS_DIR="$DIST_BASE/windows"
 SERVICES_DIR="./services"
 
-mkdir -p "$LINUX_DIR" "$WINDOWS_DIR"
+mkdir -p "$LINUX_DIR"
 
 # ============ RUST ============
 echo "🦀 Compilando Serviços Rust..."
-
-cargo install cross
 
 rustup update
 rustup target add x86_64-unknown-linux-gnu 2>/dev/null || true
@@ -26,14 +24,8 @@ echo "  📦 Linux..."
 cargo build --release --target x86_64-unknown-linux-gnu -p servico_a
 cargo build --release --target x86_64-unknown-linux-gnu -p servico_b
 
-echo "  📦 Windows..."
-cross build --release --target x86_64-pc-windows-gnu -p servico_a
-cross build --release --target x86_64-pc-windows-gnu -p servico_b
-
 cp target/x86_64-unknown-linux-gnu/release/servico_a "$LINUX_DIR/"
 cp target/x86_64-unknown-linux-gnu/release/servico_b "$LINUX_DIR/"
-cp target/x86_64-pc-windows-gnu/release/servico_a.exe "$WINDOWS_DIR/"
-cp target/x86_64-pc-windows-gnu/release/servico_b.exe "$WINDOWS_DIR/"
 
 # ============ WASM Client ============
 echo ""
@@ -49,7 +41,6 @@ wasm-bindgen --out-dir wasm_game_client/www/pkg --target web target/wasm32-unkno
 
 echo "  📦 Copiando arquivos WASM..."
 cp -r wasm_game_client/www "$LINUX_DIR/"
-cp -r wasm_game_client/www "$WINDOWS_DIR/"
 
 # ============ GO ============
 echo ""
@@ -59,9 +50,6 @@ pushd "$SERVICES_DIR/gateway_p_go" > /dev/null
 
 echo "  📦 Linux..."
 GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o "$LINUX_DIR/gateway_go" .
-
-echo "  📦 Windows..."
-GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -o "$WINDOWS_DIR/gateway_go.exe" .
 
 popd > /dev/null
 
@@ -74,11 +62,9 @@ echo ""
 echo "✅ BUILD COMPLETO!"
 echo "================================"
 echo "📁 Binários gerados em:"
-echo "   Windows: $WINDOWS_DIR"
 echo "   Linux:   $LINUX_DIR"
 echo ""
 echo "🚀 Para executar localmente:"
-echo "   Windows: cd $WINDOWS_DIR && pwsh ./run.ps1"
 echo "   Linux:   cd $LINUX_DIR && ./run.sh"
 echo ""
 echo "🎮 Após iniciar, acesse: http://localhost:8080"
