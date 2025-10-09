@@ -13,6 +13,9 @@ kubectl apply -f ruby-gateway.yaml
 kubectl apply -f service-a.yaml
 kubectl apply -f service-b.yaml
 
+echo "Carregando imagem do Serviço A..."
 minikube image load service-a:latest
+echo "Carregando imagem do Serviço B..."
 minikube image load service-b:latest
+echo "Carregando imagem do Gateway..."
 minikube image load ruby-gateway:latest
