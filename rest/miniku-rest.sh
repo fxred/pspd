@@ -14,6 +14,7 @@ PJ_SVCS_DIR="./services"
 
 echo "Compilando binários..."
 chmod +x ./build.sh
+./build.sh
 
 echo "Reiniciando o Minikube..."
 minikube stop
@@ -38,7 +39,7 @@ kubectl apply -f service_a_deployment.yaml
 kubectl apply -f service_b_deployment.yaml
 
 echo "🔌 Iniciando port-forward em segundo plano..."
-sleep 20 &
+sleep 10
 kubectl port-forward service/gateway-go 8000:8000
 
 echo -e "\n Script concluído! O port-forward para 'gateway-go' está ativo."
