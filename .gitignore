@@ -4,3 +4,4 @@ pkg/
 logs/
 .bundle/
 vendor/
+grpc/wasm_game_client/www/config.js
