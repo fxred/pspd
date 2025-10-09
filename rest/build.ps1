@@ -70,7 +70,7 @@ Pop-Location
 Write-Host "`n🐧 Compilando para Linux (via Docker)..." -ForegroundColor Yellow
 
 $dockerImageName = "rest-build-linux"
-docker build -t $dockerImageName -f scripts\build\Dockerfile.build .
+docker build -t $dockerImageName -f .\Dockerfile.builder .
 
 $containerId = docker create $dockerImageName
 docker cp "${containerId}:/app/servico_a" "$linuxDir\servico_a"

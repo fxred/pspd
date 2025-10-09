@@ -23,9 +23,9 @@ minikube start
 pushd $PJ_SVCS_DIR > /dev/null
 
 echo "Construindo imagens Docker..."
-docker build -f gateway_p_go/Dockerfile -t gateway_go:latest .
-docker build -f servico_a/Dockerfile -t servico_a:latest .
-docker build -f servico_b/Dockerfile -t servico_b:latest .
+docker build -f Dockerfile.gateway -t gateway_go:latest .
+docker build -f Dockerfile.a -t servico_a:latest .
+docker build -f Dockerfile.b -t servico_b:latest .
 
 popd > /dev/null
 

@@ -1,0 +1,12 @@
+FROM alpine:latest
+
+WORKDIR /app
+
+RUN apk --no-cache add ca-certificates
+
+COPY ./dist/linux/gateway_go /app/gateway_go
+RUN chmod +x /app/gateway_go
+
+EXPOSE 8000
+
+CMD ["./gateway_go"]
