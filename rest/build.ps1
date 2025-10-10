@@ -77,7 +77,6 @@ docker build -t $dockerImageName -f .\Dockerfile.builder .
 $containerId = docker create $dockerImageName
 docker cp "${containerId}:/app/servico_a" "$linuxDir\servico_a"
 docker cp "${containerId}:/app/servico_b" "$linuxDir\servico_b"
-docker cp "${containerId}:/app/gateway_go" "$linuxDir\gateway_go"
 docker rm $containerId
 
 # =================================================
