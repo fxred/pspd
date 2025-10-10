@@ -3,7 +3,9 @@ $ErrorActionPreference = "Stop"
 Write-Host "🔨 BUILD WINDOWS - REST" -ForegroundColor Cyan
 Write-Host "================================`n" -ForegroundColor Cyan
 
-$distBase = "./dist"
+
+$baseDir = Get-Location
+$distBase = "$baseDir\dist"
 $windowsDir = "$distBase\windows"
 $linuxDir = "$distBase\linux"
 $servicesDir = "./services"

@@ -1,7 +1,33 @@
 #!/bin/bash
 set -e
 
-minikube stop
+cleanup() {
+    echo -e "\nEncerrando o script e parando o port-forward..."
+    pkill -P $$ kubectl
+    exit 0
+}
+trap cleanup EXIT INT TERM
+
+if ! command -v minikube &> /dev/null; then
+    echo "Erro: minikube não está instalado"
+    exit 1
+fi
+
+if minikube status | grep -q "host: Running" 2>/dev/null; then
+    echo "Parando minikube..."
+    minikube stop
+else
+    echo "Minikube não está rodando"
+fi
+
+echo "ATENÇÃO: Isso irá deletar TODOS os clusters minikube existentes!"
+read -p "Deseja continuar? (y/N): " -n 1 -r
+echo
+if [[ ! $REPLY =~ ^[Yy]$ ]]; then
+    echo "Operação cancelada"
+    exit 0
+fi
+
 minikube delete --all
 minikube start --driver=docker
 
