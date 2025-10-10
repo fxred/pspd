@@ -2,11 +2,11 @@
 
 ## Rodando com minikube
 
-1. Executar o script `miniku` apropriado
+1. Executar o script `minikube` apropriado
 
     ```bash
-    ./miniku.sh #Linux
-    ./miniku.ps1 #Windows
+    ./minikube.sh #Linux
+    ./minikube.ps1 #Windows
     ```
 
 2. Execute o script `grpclient_setup` apropriado

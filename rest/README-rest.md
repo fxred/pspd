@@ -1,5 +1,32 @@
 # Versão REST
 
+## Rodando com minikube
+
+Desfaça quaisquer alterações feitas nas URLs caso tenha rodado localmente. Após isso, siga os passos:
+
+1. Executar o script `minikube-rest` apropriado.
+
+    ```bash
+    ./minikube-rest.sh #Linux
+    ./minikube-rest.ps1 #Windows
+    ```
+
+    > Este script irá deletar clusters Minikube existentes. Confirme quando solicitado.
+
+2. Execute o script `client_setup` apropriado
+
+    ```bash
+    ./client_setup.sh #Linux
+    ./client_setup.ps1 #Windows
+    ```
+
+3. **Acesse o jogo**  
+   - Abra <http://localhost:8080> no navegador
+   - **Importante:** Abra uma **segunda aba** no mesmo endereço para conectar 2 jogadores
+   - O jogo iniciará automaticamente com 2 jogadores conectados
+   - O jogo acaba quando todas as células são capturadas. O vencedor é quem tiver mais células ao final.
+
+
 ## Rodando sem minikube
 
 1. Edite os seguintes arquivos alterando as URLs de `service-a` ou `service-b` para `localhost`:
@@ -32,29 +59,3 @@
    - **Importante:** Abra uma **segunda aba** no mesmo endereço para conectar 2 jogadores
    - O jogo iniciará automaticamente com 2 jogadores conectados
    - **Objetivo:** Capturar mais células que o oponente para vencer!
-
-## Rodando com minikube
-
-Desfaça quaisquer alterações feitas nas URLs caso tenha rodado localmente. Após isso, siga os passos:
-
-1. Executar o script `miniku-rest` apropriado.
-
-    ```bash
-    ./miniku-rest.sh #Linux
-    ./miniku-rest.ps1 #Windows
-    ```
-
-    > Este script irá deletar clusters Minikube existentes. Confirme quando solicitado.
-
-2. Execute o script `client_setup` apropriado
-
-    ```bash
-    ./client_setup.sh #Linux
-    ./client_setup.ps1 #Windows
-    ```
-
-3. **Acesse o jogo**  
-   - Abra <http://localhost:8080> no navegador
-   - **Importante:** Abra uma **segunda aba** no mesmo endereço para conectar 2 jogadores
-   - O jogo iniciará automaticamente com 2 jogadores conectados
-   - O jogo acaba quando todas as células são capturadas. O vencedor é quem tiver mais células ao final.
