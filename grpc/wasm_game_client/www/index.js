@@ -1,12 +1,11 @@
 import init, { App } from './pkg/wasm_game_client.js';
-import { MINIKUBE_IP } from './config.js';
 
 async function run() {
   try {
     await init();
 
-    const apiPort = '30082';
-    const apiBaseUrl = `http://${MINIKUBE_IP}:${apiPort}`;
+    const apiPort = '8082';
+    const apiBaseUrl = `http://localhost:${apiPort}`;
 
     console.log(`API URL: ${apiBaseUrl}`);
 
