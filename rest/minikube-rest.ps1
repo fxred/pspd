@@ -14,6 +14,16 @@ $YAML_DIR = "./k8s"
 Write-Host "Compilando binários..." -ForegroundColor Green
 ./build.ps1
 
+if (!(Get-Command docker -ErrorAction SilentlyContinue)) {
+    Write-Error "Erro: Docker não está instalado"
+}
+
+try {
+    docker info > $null 2>&1
+} catch {
+    Write-Error "Erro: Docker não está rodando"
+}
+
 
 Write-Host "`n🐳 Construindo imagens Docker..." -ForegroundColor Cyan
 docker build -f Dockerfile.a -t servico_a:latest .

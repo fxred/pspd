@@ -1,4 +1,4 @@
-FROM rust:1.70 as rust-builder
+FROM rust:1.70 AS rust-builder
 
 WORKDIR /app
 
@@ -13,4 +13,3 @@ WORKDIR /app
 
 COPY --from=rust-builder /app/target/x86_64-unknown-linux-gnu/release/servico_a .
 COPY --from=rust-builder /app/target/x86_64-unknown-linux-gnu/release/servico_b .
-COPY --from=go-builder /app/gateway_go .
