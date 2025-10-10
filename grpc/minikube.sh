@@ -3,6 +3,7 @@ set -e
 
 cleanup() {
     echo -e "\nEncerrando o script e parando o port-forward..."
+    kill $PORT_FORWARD_PID 2>/dev/null
     pkill -P $$ kubectl
     exit 0
 }
@@ -45,3 +46,20 @@ echo "Carregando imagem do Serviço B..."
 minikube image load service-b:latest
 echo "Carregando imagem do Gateway..."
 minikube image load ruby-gateway:latest
+
+pods=("ruby-gateway" "service-a" "service-b")
+for pod in "${pods[@]}"; do
+    echo "Aguardando o pod '$pod' ficar pronto..."
+    if kubectl wait --for=condition=Ready pod -l app=$pod --timeout=120s; then
+        echo "O pod '$pod' está pronto."
+    else
+        echo "Erro: O pod '$pod' não ficou pronto a tempo." >&2
+    fi
+done
+
+echo "Iniciando port-forward para o ruby-gateway-service..."
+kubectl port-forward service/ruby-gateway-service 8082:8082 &
+
+PORT_FORWARD_PID=$!
+
+wait $PORT_FORWARD_PID

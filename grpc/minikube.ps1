@@ -53,4 +53,21 @@ minikube image load service-a:latest
 minikube image load service-b:latest
 minikube image load ruby-gateway:latest
 
-Write-Host "`n🚀 Script concluído!" -ForegroundColor Green
+$pods = @("ruby-gateway", "service-a", "service-b")
+foreach ($pod in $pods) {
+    Write-Host "Aguardando o pod '$pod' ficar pronto..."
+    kubectl wait --for=condition=Ready pod -l app=$pod --timeout=120s
+    Write-Host "O pod '$pod' está pronto."
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Erro: O pod '$pod' não ficou pronto a tempo."
+    }
+}
+
+Write-Host "🔌 Iniciando port-forward em segundo plano..." -ForegroundColor Cyan
+$portForwardProcess = Start-Process -FilePath "kubectl" -ArgumentList "port-forward service/ruby-gateway-service 8082:8082" -NoNewWindow -PassThru
+
+
+Write-Host "`n🚀 Script concluído! O port-forward para 'ruby_gateway' está ativo." -ForegroundColor Green
+Write-Host "Pressione [Ctrl+C] para encerrar este script e o port-forward."
+
+$portForwardProcess | Wait-Process
