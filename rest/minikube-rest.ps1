@@ -12,7 +12,7 @@ $null = Register-ObjectEvent -InputObject ([Console]) -EventName CancelKeyPress 
 $YAML_DIR = "./k8s"
 
 Write-Host "Compilando binários..." -ForegroundColor Green
-"./build.ps1"
+./build.ps1
 
 
 Write-Host "`n🐳 Construindo imagens Docker..." -ForegroundColor Cyan
