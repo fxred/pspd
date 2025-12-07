@@ -1,0 +1,133 @@
+# Configurações Globais
+cleanPrometheusOperatorObjectNames: true
+
+# --- ALERTMANAGER ---
+alertmanager:
+  alertmanagerSpec:
+    tolerations:
+      - operator: "Exists"
+    nodeSelector: {}
+    affinity: {}
+    alertmanagerConfigMatcherStrategy:
+      type: None
+
+# --- CRDS ---
+crds:
+  enabled: false
+
+# --- GRAFANA ---
+grafana:
+  tolerations:
+    - operator: "Exists"
+  nodeSelector: {}
+  affinity: {}
+
+  global:
+    dnsService: rke2-coredns-rke2-coredns
+
+  service:
+    type: ClusterIP
+
+  sidecar:
+    alerts:
+      enabled: true
+      searchNamespace: ALL
+      resource: configmap
+    dashboards:
+      enabled: true
+      searchNamespace: ALL
+      resource: configmap
+    datasources:
+      enabled: true
+      searchNamespace: ALL
+    notifiers:
+      enabled: true
+      searchNamespace: ALL
+      resource: secret
+
+  # CORREÇÃO GRAFANA: Definindo senha direta e removendo existingSecret
+  adminPassword: "admin"
+  admin:
+    existingSecret: ""
+    userKey: ""
+    passwordKey: ""
+
+  smtp:
+    existingSecret: ""
+
+# --- KUBELET ---
+kubelet:
+  serviceMonitor:
+    cAdvisorRelabelings:
+      - action: replace
+        replacement: loki
+        targetLabel: cluster
+      - targetLabel: metrics_path
+        sourceLabels:
+          - "__metrics_path__"
+      - targetLabel: "instance"
+        sourceLabels:
+          - "node"
+
+# --- REGRAS PADRÃO ---
+defaultRules:
+  additionalRuleLabels:
+    cluster: loki
+
+# --- KUBE STATE METRICS ---
+kube-state-metrics:
+  tolerations:
+    - operator: "Exists"
+  nodeSelector: {}
+  affinity: {}
+  prometheus:
+    monitor:
+      relabelings:
+        - action: replace
+          replacement: loki
+          targetLabel: cluster
+        - targetLabel: "instance"
+          sourceLabels:
+            - "__meta_kubernetes_pod_node_name"
+
+# --- NODE EXPORTER ---
+prometheus-node-exporter:
+  # CORREÇÃO: Removemos extraArgs para evitar comando duplicado
+  # Mantemos apenas as definições de porta abaixo
+  service:
+    port: 9101
+    targetPort: 9101
+  containerPort: 9101
+  hostPort: 9101
+
+  tolerations:
+    - operator: "Exists"
+  nodeSelector: {}
+  affinity: {}
+
+  prometheus:
+    monitor:
+      relabelings:
+        - action: replace
+          replacement: loki
+          targetLabel: cluster
+        - targetLabel: "instance"
+          sourceLabels:
+            - "__meta_kubernetes_pod_node_name"
+
+# --- PROMETHEUS ---
+prometheus:
+  monitor:
+    relabelings:
+      - action: replace
+        replacement: loki
+        targetLabel: cluster
+
+  prometheusSpec:
+    tolerations:
+      - operator: "Exists"
+    nodeSelector: {}
+    affinity: {}
+
+    serviceMonitorSelectorNilUsesHelmValues: false
+    podMonitorSelectorNilUsesHelmValues: false

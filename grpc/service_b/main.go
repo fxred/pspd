@@ -4,15 +4,16 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"math/rand"
 	"net"
 	"sync"
+	"time"
 
 	pb "service_b/proto"
 
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/reflection"
-	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/proto"
 )
 
 type GameStateServer struct {
@@ -31,8 +32,10 @@ func (s *GameStateServer) GetGameState(ctx context.Context, req *pb.GetGameState
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
+	clonedState := proto.Clone(s.state).(*pb.GameState)
+
 	return &pb.GameStateResponse{
-		State: s.state,
+		State: clonedState,
 	}, nil
 }
 
@@ -40,53 +43,45 @@ func (s *GameStateServer) JoinGame(ctx context.Context, req *pb.JoinGameRequest)
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
-	if s.state.Status != pb.GameStatus_WAITING_FOR_PLAYERS {
-		return &pb.JoinGameResponse{
-			Error: "Jogo não aceita novos jogadores",
-		}, status.Error(codes.FailedPrecondition, "jogo não está no estado de espera")
-	}
-
-	positions := [][2]int32{
-		{s.state.Width / 2, 0},
-		{s.state.Width / 2, s.state.Height - 1},
-		{0, s.state.Height / 2},
-		{s.state.Width - 1, s.state.Height / 2},
-	}
-	colors := []string{"#FF5733", "#33C4FF", "#A2FF33", "#F733FF"}
+	// REMOVIDO: A verificação de Status. Agora entra gente a qualquer momento (Caos total)
+	// if s.state.Status != pb.GameStatus_WAITING_FOR_PLAYERS { ... }
 
 	nextPlayerID := int32(len(s.state.Players) + 1)
 
-	if nextPlayerID > 4 {
-		return &pb.JoinGameResponse{
-			Error: "Número máximo de jogadores atingido",
-		}, status.Error(codes.ResourceExhausted, "número máximo de jogadores atingido")
-	}
+	// REMOVIDO: Limite de jogadores
+	// if nextPlayerID > 4 { ... }
 
-	pos := positions[nextPlayerID-1]
-	color := colors[nextPlayerID-1]
+	// Spawn Aleatório no Mapa
+	posX := rand.Int31n(s.state.Width)
+	posY := rand.Int31n(s.state.Height)
+
+	// Cor Aleatória
+	color := fmt.Sprintf("#%06X", rand.Intn(0xFFFFFF))
 
 	newPlayer := &pb.Player{
 		Id:    nextPlayerID,
-		X:     pos[0],
-		Y:     pos[1],
+		X:     posX,
+		Y:     posY,
 		Color: color,
 	}
-
-	fmt.Println(newPlayer.Y)
 
 	if s.state.Players == nil {
 		s.state.Players = make(map[int32]*pb.Player)
 	}
 	s.state.Players[nextPlayerID] = newPlayer
 
-	s.state.Grid.Rows[pos[1]].Cells[pos[0]] = &pb.Cell{
+	// Marca a célula inicial
+	s.state.Grid.Rows[posY].Cells[posX] = &pb.Cell{
 		State:   pb.CellState_OWNED,
 		OwnerId: nextPlayerID,
 	}
 
-	if len(s.state.Players) == 2 {
+	// Se tiver mais de 1, já considera em progresso (só pra manter compatibilidade de enum)
+	if len(s.state.Players) >= 2 {
 		s.state.Status = pb.GameStatus_IN_PROGRESS
 	}
+
+	log.Printf("Jogador %d entrou na posição (%d, %d)", nextPlayerID, posX, posY)
 
 	return &pb.JoinGameResponse{
 		Player: newPlayer,
@@ -109,11 +104,10 @@ func (s *GameStateServer) RestartGame(ctx context.Context, req *pb.RestartGameRe
 	defer s.mu.Unlock()
 
 	s.state = createInitialState(s.state.Width, s.state.Height)
-	log.Println("O jogo foi reiniciado")
+	log.Println("O jogo foi reiniciado (Clean Slate)")
 
 	return &pb.RestartGameResponse{}, nil
 }
-
 
 func createInitialState(width, height int32) *pb.GameState {
 	grid := &pb.Grid{
@@ -143,6 +137,9 @@ func createInitialState(width, height int32) *pb.GameState {
 }
 
 func main() {
+	// Seed para aleatoriedade
+	rand.Seed(time.Now().UnixNano())
+
 	port := 50051
 	lis, err := net.Listen("tcp", fmt.Sprintf(":%d", port))
 	if err != nil {
@@ -150,12 +147,18 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer()
-	gameServer := NewGameStateServer(16, 16)
+	
+	// AUMENTADO: Mapa agora é 200x200 para aguentar carga
+	// Não coloquei "infinito" literal pq o gRPC tem limite de tamanho de mensagem (4MB padrão),
+	// e enviar um array infinito quebraria a serialização. 
+	// 200x200 = 40.000 células, é pesado o suficiente para estressar a CPU/Rede.
+	gameServer := NewGameStateServer(30, 30)
+	
 	pb.RegisterGameStateServiceServer(grpcServer, gameServer)
 
 	reflection.Register(grpcServer)
 
-	log.Printf("Serviço B de Estado gRPC rodando na porta %d", port)
+	log.Printf("Serviço B de Estado gRPC (Modo Carga Infinita) rodando na porta %d", port)
 	if err := grpcServer.Serve(lis); err != nil {
 		log.Fatalf("Failed to serve: %v", err)
 	}

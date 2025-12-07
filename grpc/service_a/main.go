@@ -95,12 +95,12 @@ func (s *GameMoveService) ExecuteMove(ctx context.Context, req *gamemovementpb.E
 		}, nil
 	}
 
-	destCell := state.Grid.Rows[nextY].Cells[nextX]
-	if destCell.State == gamestatepb.CellState_OWNED && destCell.OwnerId != playerID {
-		return &gamemovementpb.ExecuteMoveResponse{
-			Error: "Célula já pertence a outro jogador",
-		}, nil
-	}
+	// destCell := state.Grid.Rows[nextY].Cells[nextX]
+	// if destCell.State == gamestatepb.CellState_OWNED && destCell.OwnerId != playerID {
+	// 	return &gamemovementpb.ExecuteMoveResponse{
+	// 		Error: "Célula já pertence a outro jogador",
+	// 	}, nil
+	// }
 
 	state.Grid.Rows[nextY].Cells[nextX] = &gamestatepb.Cell{
 		State:   gamestatepb.CellState_OWNED,

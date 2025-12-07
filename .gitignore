@@ -6,3 +6,4 @@ logs/
 vendor/
 grpc/wasm_game_client/www/config.js
 rest/dist/
+.venv
