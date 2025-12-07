@@ -75,7 +75,7 @@ docker build -f service_a/Dockerfile -t service-a:latest .
 docker build -f service_b/Dockerfile -t service-b:latest .
 ```
 
-#### 2.3 Salvando as imagens docker nos módulos
+### 2.3 Salvando as imagens docker nos módulos
 ```bash
 kind load docker-image ruby-gateway:latest --name lab
 
@@ -84,7 +84,7 @@ kind load docker-image service-a:latest --name lab
 kind load docker-image service-b:latest --name lab
 ```
 
-#### 2.4 Aplicando os manifestos k8s dos módulos
+### 2.4 Aplicando os manifestos k8s dos módulos
 ```bash
 kubectl apply -f ruby-gateway.yaml
 
@@ -93,14 +93,14 @@ kubectl apply -f service-a.yaml
 kubectl apply -f service-b.yaml
 ```
 
-#### 2.5 Executar cliente local
+### 2.5 Executar cliente local
 ```bash
 ./grpclient_setup.ps1
 ou
 ./grpclient_setup.sh
 ```
 
-#### 2.6 Port-forward para o grafana
+### 2.6 Port-forward para o grafana
 ```bash
 kubectl port-forward svc/monitoring-grafana 3000:80 -n monitoring
 ```
